@@ -252,7 +252,6 @@ Info:
     Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - Olezhik
     Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - Olezhik
     Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - Olezhik
-    Gui, Info: Add, Text, x8 y280  h23 +0x200, Для связи - olezhik.ad
 Return
 
 Teleports:

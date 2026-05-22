@@ -27,7 +27,7 @@ IfExist, %icon_img%
 Menu, Tray, Icon, %icon_img%
 
 Gui, 2: -MaximizeBox
-Gui, 2: Show, w470 h520, PR-Assistant Binder
+Gui, 2: Show, w470 h520, Varion-PR Binder
 Gui, 2: Color, 282b31
 Gui, 2: Font, s9,
 Gui, 2: Font, cWhite,Bahnschrift
@@ -249,9 +249,10 @@ Info:
 	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Моментально обновить биндер с GitHub.
     Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Полностью закрыть биндер.
     Gui, Info: Font, s14,
-    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - olezhik
-    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - olezhik
-    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - yokkk
+    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - Olezhik
+    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - Olezhik
+    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - Olezhik
+    Gui, Info: Add, Text, x8 y280  h23 +0x200, Для связи - olezhik.ad
 Return
 
 Teleports:

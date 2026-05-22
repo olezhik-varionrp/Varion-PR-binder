@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Полностью отключаем зеленую иконку процесса в трее
+A_IconHidden := 1  ; Полностью отключаем зеленую иконку процесса в v2
 
 ; ================= ИНИЦИАЛИЗАЦИЯ ДВИЖКА КАРТИНОК В ОЗУ ДЛЯ V2 =================
 InitGDIPlus() {
@@ -32,7 +32,159 @@ LoadImgMem(fileName) {
 
 titlcolor := "df005c"
 
-; --- ОПРЕДЕЛЯЕМ ВСЕ ФУНКЦИИ ЗАРАНЕЕ ДЛЯ СТАБИЛЬНОСТИ СИНТАКСИСА V2 ---
+; Чтение настроек из INI
+Radio1 := IniRead("Settings.ini", "Settings", "/hidecheatinfo", "0")
+Radio2 := IniRead("Settings.ini", "Settings", "/zzdebug", "0")
+Radio3 := IniRead("Settings.ini", "Settings", "/gm", "0")
+Radio4 := IniRead("Settings.ini", "Settings", "/esp3", "0")
+Radio5 := IniRead("Settings.ini", "Settings", "/templeader", "0")
+Radio6 := IniRead("Settings.ini", "Settings", "/chide", "0")
+
+KEY1 := IniRead("Settings.ini", "KeySetup", "KEY1", "")
+KEY2 := IniRead("Settings.ini", "KeySetup", "KEY2", "")
+KEY3 := IniRead("Settings.ini", "KeySetup", "KEY3", "")
+KEY4 := IniRead("Settings.ini", "KeySetup", "KEY4", "")
+KEY5 := IniRead("Settings.ini", "KeySetup", "KEY5", "")
+KEY6 := IniRead("Settings.ini", "KeySetup", "KEY6", "")
+KEY7 := IniRead("Settings.ini", "KeySetup", "KEY7", "")
+KEY8 := IniRead("Settings.ini", "KeySetup", "KEY8", "")
+KEY9 := IniRead("Settings.ini", "KeySetup", "KEY9", "")
+KEY10 := IniRead("Settings.ini", "KeySetup", "KEY10", "")
+KEY11 := IniRead("Settings.ini", "KeySetup", "KEY11", "")
+KEY12 := IniRead("Settings.ini", "KeySetup", "KEY12", "")
+KEY13 := IniRead("Settings.ini", "KeySetup", "KEY13", "")
+KEY14 := IniRead("Settings.ini", "KeySetup", "KEY14", "")
+
+qdin := IniRead("Settings.ini", "IDStream", "qdin", "0")
+tlead := IniRead("Settings.ini", "templeader", "tlead", "5")
+
+; Объявляем глобальные переменные для элементов GUI
+global qdin_edit, tlead_edit, cb1, cb2, cb3, cb4, cb5, cb6, hot1, hot2, hot3, hot4, hot5, hot6, hot7, hot8, hot9, hot10, hot11, hot12, hot13, hot14
+
+; --- ОТИГРЫШИ НАЖАТИЙ КЛАВИШ ---
+Func_KEY1() => (Sleep(150), SendInput("{t}/asms " qdin_edit.Value " "))
+Func_KEY2() => (Sleep(150), SendInput("{t}/setdim " qdin_edit.Value " 1{Enter}"))
+Func_KEY3() => (Sleep(150), SendInput("{t}/setdim " qdin_edit.Value " 0{Enter}"))
+Func_KEY4() => (Sleep(150), SendInput("{t}/hardban 8888 Cheats{Left 12}"))
+Func_KEY5() => (Sleep(150), SendInput("{t}/ban 3.5 ОПС{Left 8}"))
+Func_KEY6() => (Sleep(150), SendInput("{sc14}/tp " qdin_edit.Value "{Enter}"))
+Func_KEY7() => (Sleep(150), SendInput("{sc14}/gh "))
+Func_KEY8() => (Sleep(150), SendInput("{sc14}/hp " qdin_edit.Value " 100{Enter}"))
+Func_KEY9() => (Sleep(150), SendInput("{sc14}/rescue " qdin_edit.Value "{Enter}"))
+Func_KEY10() => (Sleep(150), SendInput("{t}/spec " qdin_edit.Value " {Enter}"))
+Func_KEY11() => (Sleep(150), SendInput("{t}/specoff {Enter}"), Sleep(150), SendInput("{F5}"))
+Func_KEY12() => (Sleep(150), SendInput("{sc14}/repair {Enter}"))
+Func_KEY13() => CheatsheetGui()
+Func_KEY14() => VhodLogic()
+
+; Привязка горячих клавиш (Синтаксис v2)
+TryHotkey(key, funcName) {
+    if (key != "") {
+        try Hotkey(key, (*) => funcName(), "On")
+    }
+}
+
+TryHotkey(KEY1, Func_KEY1)
+TryHotkey(KEY2, Func_KEY2)
+TryHotkey(KEY3, Func_KEY3)
+TryHotkey(KEY4, Func_KEY4)
+TryHotkey(KEY5, Func_KEY5)
+TryHotkey(KEY6, Func_KEY6)
+TryHotkey(KEY7, Func_KEY7)
+TryHotkey(KEY8, Func_KEY8)
+TryHotkey(KEY9, Func_KEY9)
+TryHotkey(KEY10, Func_KEY10)
+TryHotkey(KEY11, Func_KEY11)
+TryHotkey(KEY12, Func_KEY12)
+TryHotkey(KEY13, Func_KEY13)
+TryHotkey(KEY14, Func_KEY14)
+
+; --- ГЛАВНЫЙ ИНТЕРФЕЙС GUI ---
+MainGui := Gui("-MaximizeBox", "PR-Assistant Binder")
+MainGui.BackColor := "282b31"
+MainGui.SetFont("s9 cWhite", "Bahnschrift")
+
+; Левые графические кнопки
+MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
+MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
+MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
+MainGui.Add("Picture", "x7 y165 w80 h41", LoadImgMem("bind.png")).OnEvent("Click", (*) => InfoGui())
+
+MainGui.Add("Text", "x7 y300 +0x200", "ID стримера:")
+qdin_edit := MainGui.Add("Edit", "x7 y322 w80 h21 +Number cBlack", qdin)
+MainGui.Add("Picture", "x7 y352 w80 h30", LoadImgMem("save.png")).OnEvent("Click", (*) => SaveID())
+
+MainGui.Add("Picture", "x100 y9 w184 h27", LoadImgMem("bindinfo.png"))
+MainGui.Add("Picture", "x294 y9 w168 h27", LoadImgMem("auto.png"))
+
+; Сетка настройки Хоткеев из оригинального v1
+MainGui.SetFont("s8 cWhite", "Bahnschrift")
+hot1 := MainGui.Add("Hotkey", "x110 y50 w48 h21", KEY1)
+MainGui.Add("Text", "x163 y53 w120 h14 +0x200", "asms media")
+hot2 := MainGui.Add("Hotkey", "x110 y76 w48 h21", KEY2)
+MainGui.Add("Text", "x163 y79 w120 h14 +0x200", "setdim 1")
+hot3 := MainGui.Add("Hotkey", "x110 y102 w48 h21", KEY3)
+MainGui.Add("Text", "x163 y105 w120 h14 +0x200", "setdim 0")
+hot4 := MainGui.Add("Hotkey", "x110 y128 w48 h21", KEY4)
+MainGui.Add("Text", "x163 y131 w120 h14 +0x200", "Бан за читы")
+hot5 := MainGui.Add("Hotkey", "x110 y154 w48 h21", KEY5)
+MainGui.Add("Text", "x163 y157 w120 h14 +0x200", "Бан за запретку")
+hot6 := MainGui.Add("Hotkey", "x110 y180 w48 h21", KEY6)
+MainGui.Add("Text", "x163 y183 w120 h14 +0x200", "Телепорт к медиа")
+hot7 := MainGui.Add("Hotkey", "x110 y206 w48 h21", KEY7)
+MainGui.Add("Text", "x163 y209 w120 h14 +0x200", "Телепорт к себе")
+hot8 := MainGui.Add("Hotkey", "x110 y232 w48 h21", KEY8)
+MainGui.Add("Text", "x163 y235 w120 h14 +0x200", "Восстановить ХП")
+hot9 := MainGui.Add("Hotkey", "x110 y258 w48 h21", KEY9)
+MainGui.Add("Text", "x163 y261 w120 h14 +0x200", "Возродить")
+hot10 := MainGui.Add("Hotkey", "x110 y284 w48 h21", KEY10)
+MainGui.Add("Text", "x163 y287 w120 h14 +0x200", "Spec")
+hot11 := MainGui.Add("Hotkey", "x110 y310 w48 h21", KEY11)
+MainGui.Add("Text", "x163 y313 w120 h14 +0x200", "Specoff")
+hot12 := MainGui.Add("Hotkey", "x110 y336 w48 h21", KEY12)
+MainGui.Add("Text", "x163 y339 w120 h14 +0x200", "Починка авто")
+hot13 := MainGui.Add("Hotkey", "x110 y362 w48 h21", KEY13)
+MainGui.Add("Text", "x163 y367 w120 h14 +0x200", "Памятка")
+
+hot14 := MainGui.Add("Hotkey", "x303 y212 w40 h21", KEY14)
+MainGui.Add("Text", "x350 y216 w120 h14 +0x200", "Команды при входе")
+
+MainGui.SetFont("s9 cWhite", "Bahnschrift")
+; Чекбоксы Авторизации
+cb1 := MainGui.Add("CheckBox", "x304 y50 w120 h23", "/hidecheatinfo")
+cb1.Value := Radio1
+cb2 := MainGui.Add("CheckBox", "x304 y76 w120 h23", "/zzdebug")
+cb2.Value := Radio2
+cb3 := MainGui.Add("CheckBox", "x304 y102 w120 h23", "/gm")
+cb3.Value := Radio3
+cb4 := MainGui.Add("CheckBox", "x304 y128 w120 h23", "/esp3")
+cb4.Value := Radio4
+cb5 := MainGui.Add("CheckBox", "x304 y154 w85 h23", "/templeader")
+cb5.Value := Radio5
+tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
+cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
+cb6.Value := Radio6
+
+; Правые кнопки из ОЗУ
+MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
+MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
+MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
+
+; Нижняя текстовая панель
+MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
+MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
+MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
+MainGui.Add("Text", "x10 y415 h20 +0x200", ".привет - Приветствие на 'Вы'")
+MainGui.Add("Text", "x10 y435 h20 +0x200", ".замена - Замена другим ассистентом")
+MainGui.Add("Text", "x10 y455 h20 +0x200", ".пока - Прощание в конце стрима")
+MainGui.Add("Text", "x10 y475 h20 +0x200", ".не - 'Не нарушайте' игроку")
+MainGui.Add("Text", "x305 y395 h20 +0x200", "Помощь с м-чатом")
+MainGui.Add("Text", "x248 y415 h20 +0x200", ".кпз - Выпуск с КПЗ")
+MainGui.Add("Text", "x248 y435 h20 +0x200", ".авто - Выдача авто")
+MainGui.Add("Text", "x248 y455 h20 +0x200", ".искин - Выдача скина")
+MainGui.Add("Text", "x248 y475 h20 +0x200", ".од - Запрос одобрения в ЛС")
+
+MainGui.Show("w470 h520")
 
 SaveID() {
     IniWrite(qdin_edit.Value, "Settings.ini", "IDStream", "qdin")
@@ -64,7 +216,6 @@ SaveOption() {
     IniWrite(hot14.Value, "Settings.ini", "KeySetup", "KEY14")
     Reload()
 }
-
 VhodLogic() {
     SendMessage(0x50,, 0x4090409,, "A")
     SendInput("{T}/gm{Enter}")
@@ -117,7 +268,7 @@ FixLogGui() {
     g.SetFont("s12 cWhite", "Bahnschrift")
     g.Add("GroupBox", "x20 y5 w660 h50 cA52A2A")
     g.Add("Text", "cee5180 x270 y23 +0x200", "Список изменений:")
-    g.Add("Text", "x25 y80 cWhite", "- Binder updated successfully to AHK v2 (22.05.2026).")
+    g.Add("Text", "x25 y80 cWhite", "- Актуальная версия Переведена на движок AHK v2 (22.05.2026).")
     g.Add("Text", "x25 y100 cWhite", "by defix")
     g.Show("h160 w700")
 }
@@ -140,23 +291,6 @@ InfoGui() {
     g.Show("h280 w540")
 }
 
-CheatsheetGui() {
-    g3 := Gui("+LastFound +AlwaysOnTop -Caption +ToolWindow", "window")
-    g3.BackColor := "black"
-    g3.SetFont("s8 w3000 cFFFFFF", "Bahnschrift")
-    g3.Add("Text",, "Фракции: 1 - LSPD   2 - EMS   3 - SD   4 - SANG   5 - GOV   6 - WN   7 - FIB   8 - Ballas   9 - Vagos   10 - Fam   11 - Bloods   12 - Mara")
-    g3.Add("Text", "cWhite", "")
-    g3.SetFont("s10")
-    g3.Add("Text", "cAqua", "Запрещено использовать запрещенные стримерской платформой слова... | Mute 240 / Ban 3-30 / Hard 5-15")
-    g3.Add("Text", "cWhite", "Nigger, nigga, нига, ниггер -> Ban 10-30 дней.")
-    g3.Add("Text", "cWhite", "Faggot, пидор, пидорас, педик -> Ban 10-30 дней.")
-    g3.Add("Text", "cWhite", "Даун, аутист -> Ban 3-5 дней.")
-    g3.Add("Text", "cWhite", "Хохол, хач, жид -> Hardban 30 дней (оск нации).")
-    g3.Add("Text", "cWhite", "Пизда, шлюха (к девушке) -> Ban 10-15 дней (гендер оск).")
-    WinSetTransColor("000000 190", g3)
-    g3.Show("x0 y0 NoActivate")
-}
-; --- ОСТАЛЬНЫЕ ОКНА GUI ---
 TeleportsGui() {
     g := Gui(, "Телепорты")
     g.BackColor := "282b31"
@@ -403,8 +537,55 @@ PunishGui() {
     g.Show("h320 w320")
 }
 
-; --- СКОРОСТНЫЕ КОМАНДЫ АВТОМАТИЧЕСКОГО ДИНАМИКА ---
-; (В v2 пишем через SendInput для работы внутри игры)
+CheatsheetGui() {
+    g3 := Gui("+LastFound +AlwaysOnTop -Caption +ToolWindow", "window")
+    g3.BackColor := "black"
+    g3.SetFont("s8 w3000 cFFFFFF", "Bahnschrift")
+    g3.Add("Text",, "Фракции: 1 - LSPD   2 - EMS   3 - SD   4 - SANG   5 - GOV   6 - WN   7 - FIB   8 - Ballas   9 - Vagos   10 - Fam   11 - Bloods   12 - Mara")
+    g3.Add("Text", "cWhite", "")
+    g3.SetFont("s10")
+    g3.Add("Text", "cAqua", "Запрещено использовать запрещенные стримерской платформой слова... | Mute 240 / Ban 3-30 / Hard 5-15")
+    g3.Add("Text", "cWhite", "Nigger, nigga, нига, ниггер -> Ban 10-30 дней.")
+    g3.Add("Text", "cWhite", "Faggot, пидор, пидорас, педик -> Ban 10-30 дней.")
+    g3.Add("Text", "cWhite", "Даун, аутист -> Ban 3-5 дней.")
+    g3.Add("Text", "cWhite", "Хохол, хач, жид -> Hardban 30 дней (оск нации).")
+    g3.Add("Text", "cWhite", "Пизда, шлюха (к девушке) -> Ban 10-15 дней (гендер оск).")
+    WinSetTransColor("000000 190", g3)
+    g3.Show("x0 y0 NoActivate")
+}
+
+; --- РП ОТЫГРЫШИ ---
+::.ку::Привет, сегодня я слежу за тобой. Хорошего стрима
+::.привет::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
+::.кпз::Напомню, что как либо контактировать с игроками которые вели процессуальные действия - запрещено.
+::.авто::Напомню, что краймить на выданном авто нельзя, если заглохнет, то завести можно будет только отверткой.
+::.искин::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на сервер, чтобы снять скин.
+::.замена::К сожалению, мне нужно тебя покинуть, меня заменит другой Ассистент. Хорошего продолжения стрима
+::.пока::Спасибо за стрим, хорошего настроения.
+::.од::Предоставьте одобрение в личные сообщения.
+
+::/re::Привет, сегодня я слежу за тобой. Хорошего стрима
+::/ghbdtn::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
+::/gjrf::Спасибо за стрим, хорошего настроения.
+::/rgp::Напомню, что как либо контактировать с игроками которые вели процессуальные действия - запрещено.
+::/bcrby::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на server, чтобы снять скин.
+::/pfvtyf::К сожалению, мне нужно тебя покинуть, меня заменит другой Ассистент. Хорошего продолжения стрима
+::.jl::Предоставьте одобрение в личные сообщения.
+
+::.промо::При достижении 3 уровня по твоему промо игроки будут получать: 7 дней PLATINUM VIP и 50.000$.
+::.лвл::При достижении 5-го уровня: 500 MC, при достижении 10-го уровня: 1000 MC, при достижении 15-го уровня: 2000 MC, при достижении 20-го уровня: 3000 MC, при достижении 25-го уровня: 4000 MC, при достижении 30-го уровня: 5000 MC. Каждый следующий уровень после 30-го будешь получать 1500 MC.
+::.лвл5::При достижении 5-го уровня: 500 MC.
+::.лвл10::При достижении 10-го уровня: 1000 MC.
+::.лвл15::При достижении 15-го уровня: 2000 MC.
+::.лвл20::При достижении 20-го уровня: 3000 MC.
+::.лвл25::При достижении 25-го уровня: 4000 MC
+::.лвл30::При достижении 30-го уровня: 5000 MC. Каждый следующий уровень после 30-го будешь получать 1500 MC.
+::.пом::Сейчас помогу.
+::/gjv::Сейчас помогу.
+::.ключ::/ctp -382.57 -126.32 38.24
+::.15::/ctp -712.42 -366.30 33.90
+
+; Горячие клавиши автоматического динамика
 :X:.1п:: SendInput("/asms " qdin_edit.Value " 1/3 предупреждений за ")
 :X:.2п:: SendInput("/asms " qdin_edit.Value " 2/3 предупреждений за ")
 :X:.3п:: SendInput("/asms " qdin_edit.Value " 3/3 предупреждений за .Если продолжешь нарушать, будет полноценное наказание. ")

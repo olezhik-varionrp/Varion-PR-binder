@@ -204,7 +204,7 @@ FixLog:
     Gui, FixLog: Add, Text, cee5180 x270 y23 +0x200, Список изменений:
 
     Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуальная версия V1.1(Изменения 22.05.2026).
-    Gui, FixLog: Add, Text,  x25 y100 cWhite, По вопросам и ошибкам- Discord: Olezhik.ad или Telegram: @olezhikmanager.
+    Gui, FixLog: Add, Text,  x25 y100 cWhite, По вопросам и ошибкам Discord: Olezhik.ad или Telegram: @olezhikmanager.
 
     Gui, FixLog: Show, h160 w700, Список изменений
 return

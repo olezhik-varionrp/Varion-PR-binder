@@ -310,9 +310,9 @@ Info:
 	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Перезапустить.
     Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Закрыть.
     Gui, Info: Font, s14,
-    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - flayme
-    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - defix
-    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - yokkk
+    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - Olezhik
+    Gui, Info: Add, Text, x8 y230  h23 +0x200, По работе и ошибках писать в Discord - Olezhik.ad
+    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - Olezhik
 Return
 
 Teleports:

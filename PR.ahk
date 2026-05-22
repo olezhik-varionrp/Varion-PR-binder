@@ -1,10 +1,10 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Полностью скрываем стандартную зеленую иконку процесса в v2
+A_IconHidden := 1  ; Убираем стандартную зеленую иконку в v2, оставляем только лоадер
 
 titlcolor := "df005c"
 
-; Чтение настроек из INI
+; Чтение оригинальных настроек из INI
 Radio1 := IniRead("Settings.ini", "Settings", "/hidecheatinfo", "0")
 Radio2 := IniRead("Settings.ini", "Settings", "/zzdebug", "0")
 Radio3 := IniRead("Settings.ini", "Settings", "/gm", "0")
@@ -30,7 +30,7 @@ KEY14 := IniRead("Settings.ini", "KeySetup", "KEY14", "")
 qdin := IniRead("Settings.ini", "IDStream", "qdin", "0")
 tlead := IniRead("Settings.ini", "templeader", "tlead", "5")
 
-; Активация горячих клавиш (Синтаксис v2)
+; Динамическая привязка хоткеев (Синтаксис v2)
 TryHotkey(key, actionFunc) {
     if (key != "") {
         try Hotkey(key, (*) => actionFunc(), "On")
@@ -52,12 +52,12 @@ TryHotkey(KEY12, (*) => (Sleep(150), SendInput("{sc14}/repair {Enter}")))
 TryHotkey(KEY13, (*) => CheatsheetGui())
 TryHotkey(KEY14, (*) => VhodLogic())
 
-; --- ГЛАВНЫЙ ИНТЕРФЕЙС ---
-MainGui := Gui("-MaximizeBox", "Varion PR Binder")
+; --- ГЛАВНЫЙ ИНТЕРФЕЙС GUI 2 ---
+MainGui := Gui("-MaximizeBox", "PR-Assistant Binder")
 MainGui.BackColor := "282b31"
 MainGui.SetFont("s9 cWhite", "Bahnschrift")
 
-; Левые кнопки
+; Левые графические кнопки из памяти
 MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
 MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
 MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
@@ -67,11 +67,11 @@ MainGui.Add("Text", "x7 y300 +0x200", "ID стримера:")
 qdin_edit := MainGui.Add("Edit", "x7 y322 w80 h21 +Number cBlack", qdin)
 MainGui.Add("Picture", "x7 y352 w80 h30", LoadImgMem("save.png")).OnEvent("Click", (*) => SaveID())
 
-; Декорации сверху
+; Панели заголовков
 MainGui.Add("Picture", "x100 y9 w184 h27", LoadImgMem("bindinfo.png"))
 MainGui.Add("Picture", "x294 y9 w168 h27", LoadImgMem("auto.png"))
 
-; ================= ВОЗВРАЩАЕМ ПОЛЯ НАСТРОЙКИ БИНДОВ ИЗ V1 =================
+; Сетка настройки Хоткеев из оригинального v1
 MainGui.SetFont("s8 cWhite", "Bahnschrift")
 hot1 := MainGui.Add("Hotkey", "x110 y50 w48 h21", KEY1)
 MainGui.Add("Text", "x163 y53 w120 h14 +0x200", "asms media")
@@ -102,10 +102,9 @@ MainGui.Add("Text", "x163 y367 w120 h14 +0x200", "Памятка")
 
 hot14 := MainGui.Add("Hotkey", "x303 y212 w40 h21", KEY14)
 MainGui.Add("Text", "x350 y216 w120 h14 +0x200", "Команды при входе")
-; =========================================================================
 
 MainGui.SetFont("s9 cWhite", "Bahnschrift")
-; Авторизация (Правая колонка)
+; Чекбоксы Авторизации
 cb1 := MainGui.Add("CheckBox", "x304 y50 w120 h23", "/hidecheatinfo")
 cb1.Value := Radio1
 cb2 := MainGui.Add("CheckBox", "x304 y76 w120 h23", "/zzdebug")
@@ -120,12 +119,12 @@ tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
 cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
 cb6.Value := Radio6
 
-; Правые кнопки-картинки
+; Правые кнопки из ОЗУ
 MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
 MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
 MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
 
-; Нижняя текстовая панель
+; Памятка внизу
 MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
 MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
 MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
@@ -141,13 +140,13 @@ MainGui.Add("Text", "x248 y475 h20 +0x200", ".од - Запрос одобрен
 
 MainGui.Show("w470 h520")
 
-; --- ОЗУ ПОДГРУЗКА ---
+; --- ОЗУ ПОДГРУЗКА ИЗ СЕТИ ---
 LoadImgMem(fileName) {
     url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" . fileName
     try {
         whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", url, true)
-        whr.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        whr.SetRequestHeader("User-Agent", "Mozilla/5.0")
         whr.Send()
         whr.WaitForResponse()
         pStream := DllCall("Shlwapi\SHCreateMemStream", "Ptr", whr.ResponseBody, "UInt", whr.ResponseBody.MaxIndex() + 1, "Ptr")
@@ -161,7 +160,7 @@ LoadImgMem(fileName) {
 
 SaveID() {
     IniWrite(qdin_edit.Value, "Settings.ini", "IDStream", "qdin")
-    MsgBox("ID Стримера успешно сохранен!", "Сохранение", 64)
+    MsgBox("ID Стримера сохранен!", "Сохранение", 64)
 }
 
 SaveOption() {
@@ -191,6 +190,7 @@ SaveOption() {
 }
 
 VhodLogic() {
+    SendMessage(0x50,, 0x4090409,, "A")
     SendInput("{T}/gm{Enter}")
     Sleep(300)
     if (cb4.Value == 1) {
@@ -207,6 +207,10 @@ VhodLogic() {
     }
     if (cb1.Value == 1) {
         SendInput("{T}/hidecheatinfo{Enter}")
+        Sleep(300)
+    }
+    if (cb3.Value == 1) {
+        SendInput("{T}/gm{Enter}")
         Sleep(300)
     }
     if (cb5.Value == 1) {
@@ -237,8 +241,8 @@ FixLogGui() {
     g.SetFont("s12 cWhite", "Bahnschrift")
     g.Add("GroupBox", "x20 y5 w660 h50 cA52A2A")
     g.Add("Text", "cee5180 x270 y23 +0x200", "Список изменений:")
-    g.Add("Text", "x25 y80 cWhite", "- Актуальная версия Переведена на движок AHK v2 (22.05.2026).")
-    g.Add("Text", "x25 y100 cWhite", "По вопросам и ошибкам Discord: Olezhik.ad или Telegram: @olezhikmanager.")
+    g.Add("Text", "x25 y80 cWhite", "- Binder updated successfully to AHK v2 (22.05.2026).")
+    g.Add("Text", "x25 y100 cWhite", "by defix")
     g.Show("h160 w700")
 }
 
@@ -255,9 +259,8 @@ InfoGui() {
     g.Add("Text", "cYellow x8 y150 h23 +0x200", "Ctrl + F9 - Моментально обновить биндер с GitHub.")
     g.Add("Text", "cYellow x8 y170 h23 +0x200", "Ctrl + F10 - Полностью закрыть биндер.")
     g.SetFont("s14")
-    g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - olezhik")
-    g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - olezhik")
-    g.Add("Text", "x8 y250 h23 +0x200", "Дизайн иконки - yokkk")
+    g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - flayme")
+    g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - defix")
     g.Show("h280 w540")
 }
 TeleportsGui() {
@@ -296,10 +299,11 @@ TeleportsGui() {
     g.Add("Text", "x8 y392 h20 +0x200", ".рич - /ctp -1302.49 294.52 64.50")
     g.Add("Text", "x8 y408 h20 +0x200", ".манор - /ctp -58.20 343.73 111.80")
     g.Add("Text", "x8 y424 h20 +0x200", ".15 - /ctp -712.42 -366.30 33.90")
+
     g.Add("Text", "cee5180 x280 y8 h20 +0x200", "Места")
 	g.Add("Text", "x280 y24 h20 +0x200", ".хум - /ctp 3569.54 3789.48 30")
     g.Add("Text", "x280 y40 h20 +0x200", ".мейз - /ctp -75 -818 326")
-    g.Add("Text", "x280 y56 h20 +0x200", ".каз - /ctp 1110.117 217.0512 -49.56448")
+    g.Add("Text", "x280 y56 h20 +0x200", ".каз - /ctp 916 50 81")
     g.Add("Text", "x280 y72 h20 +0x200", ".аш - /ctp -620 -2264 6")
     g.Add("Text", "x280 y88 h20 +0x200", ".гг - /ctp -257 -2023 30")
     g.Add("Text", "x280 y104 h20 +0x200", ".бургер - /ctp -1171.31 -890.20 13.90")
@@ -505,15 +509,41 @@ PunishGui() {
     g.Show("h320 w320")
 }
 
+CheatsheetGui() {
+    g3 := Gui("+LastFound +AlwaysOnTop -Caption +ToolWindow", "window")
+    g3.BackColor := "black"
+    g3.SetFont("s8 w3000 cFFFFFF", "Bahnschrift")
+    g3.Add("Text",, "Фракции: 1 - LSPD   2 - EMS   3 - SD   4 - SANG   5 - GOV   6 - WN   7 - FIB   8 - Ballas   9 - Vagos   10 - Fam   11 - Bloods   12 - Mara")
+    g3.Add("Text", "cWhite", "")
+    g3.SetFont("s10")
+    g3.Add("Text", "cAqua", "Запрещено использовать запрещенные стримерской платформой слова... | Mute 240 / Ban 3-30 / Hard 5-15")
+    g3.Add("Text", "cWhite", "Nigger, nigga, нига, ниггер -> Ban 10-30 дней.")
+    g3.Add("Text", "cWhite", "Faggot, пидор, пидорас, педик -> Ban 10-30 дней.")
+    g3.Add("Text", "cWhite", "Даун, аутист -> Ban 3-5 дней.")
+    g3.Add("Text", "cWhite", "Хохол, хач, жид -> Hardban 30 дней (оск нации).")
+    g3.Add("Text", "cWhite", "Пизда, шлюха (к девушке) -> Ban 10-15 дней (гендер оск).")
+    WinSetTransColor("000000 190", g3)
+    g3.Show("x0 y0 NoActivate")
+}
+
 ; --- РП ОТЫГРЫШИ ---
 ::.ку::Привет, сегодня я слежу за тобой. Хорошего стрима
 ::.привет::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
 ::.кпз::Напомню, что как либо контактировать с игроками которые вели процессуальные действия - запрещено.
 ::.авто::Напомню, что краймить на выданном авто нельзя, если заглохнет, то завести можно будет только отверткой.
-::.искин::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на server, чтобы снять скин.
+::.искин::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на сервер, чтобы снять скин.
 ::.замена::К сожалению, мне нужно тебя покинуть, меня заменит другой Ассистент. Хорошего продолжения стрима
 ::.пока::Спасибо за стрим, хорошего настроения.
 ::.од::Предоставьте одобрение в личные сообщения.
+
+::/re::Привет, сегодня я слежу за тобой. Хорошего стрима
+::/ghbdtn::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
+::/gjrf::Спасибо за стрим, хорошего настроения.
+::/rgp::Напомню, что как либо контактировать с игроками которые вели процессуальные действия - запрещено.
+::/bcrby::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на сервер, чтобы снять скин.
+::/pfvtyf::К сожалению, мне нужно тебя покинуть, меня заменит другой Ассистент. Хорошего продолжения стрима
+::.jl::Предоставьте одобрение в личные сообщения.
+
 ::.промо::При достижении 3 уровня по твоему промо игроки будут получать: 7 дней PLATINUM VIP и 50.000$.
 ::.лвл::При достижении 5-го уровня: 500 MC, при достижении 10-го уровня: 1000 MC, при достижении 15-го уровня: 2000 MC, при достижении 20-го уровня: 3000 MC, при достижении 25-го уровня: 4000 MC, при достижении 30-го уровня: 5000 MC. Каждый следующий уровень после 30-го будешь получать 1500 MC.
 ::.лвл5::При достижении 5-го уровня: 500 MC.

@@ -1,40 +1,10 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Полностью скрываем стандартную зеленую иконку процесса в v2
-
-; Создаем папку для картинок, если её нет
-if !DirExist(A_ScriptDir "\img")
-    DirCreate(A_ScriptDir "\img")
-
-; Функция для скачивания картинок с твоего GitHub
-DownloadImg(imgName) {
-    localPath := A_ScriptDir "\img\" imgName
-    if !FileExist(localPath) {
-        url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" imgName
-        try {
-            Download(url, localPath)
-        } catch {
-            ; Пропускаем, если нет сети
-        }
-    }
-}
-
-; Скачиваем графику интерфейса
-DownloadImg("icon.png")
-DownloadImg("tp.png")
-DownloadImg("spis.png")
-DownloadImg("nak.png")
-DownloadImg("bind.png")
-DownloadImg("save.png")
-DownloadImg("pred.png")
-DownloadImg("spisupdate.png")
-DownloadImg("saveglobal.png")
-DownloadImg("bindinfo.png")
-DownloadImg("auto.png")
+A_IconHidden := 1  ; Намертво отключаем стандартную зеленую иконку в v2
 
 titlcolor := "df005c"
 
-; Чтение настроек
+; Чтение настроек из INI
 Radio1 := IniRead("Settings.ini", "Settings", "/hidecheatinfo", "0")
 Radio2 := IniRead("Settings.ini", "Settings", "/zzdebug", "0")
 Radio3 := IniRead("Settings.ini", "Settings", "/gm", "0")
@@ -56,19 +26,19 @@ qdin_edit := MainGui.Add("Edit", "x7 y322 w80 h21 +Number cBlack", qdin)
 MainGui.Add("Text", "x304 y156 +0x200", "/templeader")
 tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
 
-; Кнопки-картинки
-MainGui.Add("Picture", "x7 y15 w80 h41", A_ScriptDir "\img\tp.png").OnEvent("Click", (*) => TeleportsGui())
-MainGui.Add("Picture", "x7 y65 w80 h41", A_ScriptDir "\img\spis.png").OnEvent("Click", (*) => CommandListGui())
-MainGui.Add("Picture", "x7 y115 w80 h41", A_ScriptDir "\img\nak.png").OnEvent("Click", (*) => PunishGui())
-MainGui.Add("Picture", "x7 y165 w80 h41", A_ScriptDir "\img\bind.png").OnEvent("Click", (*) => InfoGui())
-MainGui.Add("Picture", "x7 y352 w80 h30", A_ScriptDir "\img\save.png").OnEvent("Click", (*) => SaveID())
+; Кнопки-картинки из оперативной памяти напрямую с GitHub
+MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
+MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
+MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
+MainGui.Add("Picture", "x7 y165 w80 h41", LoadImgMem("bind.png")).OnEvent("Click", (*) => InfoGui())
+MainGui.Add("Picture", "x7 y352 w80 h30", LoadImgMem("save.png")).OnEvent("Click", (*) => SaveID())
 
-MainGui.Add("Picture", "x302 y248 w150 h41", A_ScriptDir "\img\pred.png").OnEvent("Click", (*) => InfopredGui())
-MainGui.Add("Picture", "x302 y300 w150 h30", A_ScriptDir "\img\spisupdate.png").OnEvent("Click", (*) => FixLogGui())
-MainGui.Add("Picture", "x302 y340 w150 h41", A_ScriptDir "\img\saveglobal.png").OnEvent("Click", (*) => SaveOption())
+MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
+MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
+MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
 
-MainGui.Add("Picture", "x100 y9 w184 h27", A_ScriptDir "\img\bindinfo.png")
-MainGui.Add("Picture", "x294 y9 w168 h27", A_ScriptDir "\img\auto.png")
+MainGui.Add("Picture", "x100 y9 w184 h27", LoadImgMem("bindinfo.png"))
+MainGui.Add("Picture", "x294 y9 w168 h27", LoadImgMem("auto.png"))
 
 ; Чекбоксы
 cb1 := MainGui.Add("CheckBox", "x304 y50 w120 h23", "/hidecheatinfo")
@@ -84,7 +54,7 @@ cb5.Value := Radio5
 cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
 cb6.Value := Radio6
 
-; Нижний текст-памятка
+; Памятка
 MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
 MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
 MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
@@ -100,7 +70,6 @@ MainGui.Add("Text", "x248 y475 h20 +0x200", ".од - Запрос одобрен
 
 MainGui.Show("w470 h520")
 
-; --- ЛОГИКА КНОПОК ---
 SaveID() {
     IniWrite(qdin_edit.Value, "Settings.ini", "IDStream", "qdin")
     MsgBox("ID Стримера успешно сохранен!", "Сохранение", 64)
@@ -117,7 +86,6 @@ SaveOption() {
     Reload()
 }
 
-; --- ДОПОЛНИТЕЛЬНЫЕ ОКНА GUI ---
 InfopredGui() {
     g := Gui(, "Предупреждения")
     g.BackColor := "282b31"
@@ -164,7 +132,6 @@ InfoGui() {
     g.Add("Text", "x8 y250 h23 +0x200", "Дизайн иконки - yokkk")
     g.Show("h280 w540")
 }
-
 TeleportsGui() {
     g := Gui(, "Телепорты")
     g.BackColor := "282b31"
@@ -174,7 +141,6 @@ TeleportsGui() {
     g.Add("Text", "x8 y482 h20 +0x200", ".клг - /ctp -40.529 -1077.648 26.653")
     g.Add("Text", "x8 y498 h20 +0x200", ".клс - /ctp 1728.313 3717.568 34.109")
     g.Add("Text", "x8 y514 h20 +0x200", ".клп - /ctp -196.836 6218.708 31.491")
-    
     g.Add("Text", "cee5180 x8 y8 h20 +0x200", "Респавны фракций")
     g.Add("Text", "x8 y24 h20 +0x200", ".лспд - /ctp 429 -980 30.50")
     g.Add("Text", "x8 y40 h20 +0x200", ".бол - /ctp 287.70 -578.35 50")
@@ -198,13 +164,12 @@ TeleportsGui() {
     g.Add("Text", "x8 y328 h20 +0x200", ".аод - /ctp 1995.99 3062.44 47.06")
     g.Add("Text", "x8 y344 h20 +0x200", ".ам - /ctp -1895.23 2027.19 141")
     g.Add("Text", "x8 y360 h20 +0x200", ".груб - /ctp -3022 105 11.30")
-	g.Add("Text", "x8 y376 h20 +0x200", ".клаб - /ctp 1588.65 6445.38 25")
+    g.Add("Text", "x8 y376 h20 +0x200", ".клаб - /ctp 1588.65 6445.38 25")
     g.Add("Text", "x8 y392 h20 +0x200", ".рич - /ctp -1302.49 294.52 64.50")
     g.Add("Text", "x8 y408 h20 +0x200", ".манор - /ctp -58.20 343.73 111.80")
     g.Add("Text", "x8 y424 h20 +0x200", ".15 - /ctp -712.42 -366.30 33.90")
-
     g.Add("Text", "cee5180 x280 y8 h20 +0x200", "Места")
-	g.Add("Text", "x280 y24 h20 +0x200", ".хум - /ctp 3569.54 3789.48 30")
+    g.Add("Text", "x280 y24 h20 +0x200", ".хум - /ctp 3569.54 3789.48 30")
     g.Add("Text", "x280 y40 h20 +0x200", ".мейз - /ctp -75 -818 326")
     g.Add("Text", "x280 y56 h20 +0x200", ".каз - /ctp 1110.117 217.0512 -49.56448")
     g.Add("Text", "x280 y72 h20 +0x200", ".аш - /ctp -620 -2264 6")
@@ -226,7 +191,7 @@ TeleportsGui() {
     g.Add("Text", "x280 y328 h20 +0x200", ".порт - /ctp 417 -2501 13.46")
     g.Add("Text", "x280 y344 h20 +0x200", ".стр - /ctp 1304 1453 98.87")
     g.Add("Text", "x280 y360 h20 +0x200", ".лес - /ctp -321 6093 31.14")
-	g.Add("Text", "x280 y376 h20 +0x200", ".бмара - /ctp 1302 -1646 51.04")
+    g.Add("Text", "x280 y376 h20 +0x200", ".бмара - /ctp 1302 -1646 51.04")
     g.Add("Text", "x280 y392 h20 +0x200", ".самол - /ctp 1473 2730 37.38")
     g.Add("Text", "x280 y408 h20 +0x200", ".чил - /ctp 498 5592 795")
     g.Add("Text", "x280 y424 h20 +0x200", ".палето - /ctp -434.87 6024.54 31.50")
@@ -260,7 +225,7 @@ CommandListGui() {
     g.Add("Text", "x8 y328 h20 +0x200", "/mcheck - /mutecheck")
     g.Add("Text", "x8 y344 h20 +0x200", ".ьсрусл - /mutecheck")
     g.Add("Text", "x8 y360 h20 +0x200", ".ьгеусрусл - /mutecheck")
-	g.Add("Text", "x8 y376 h20 +0x200", ".гтофшд - /unjail")
+    g.Add("Text", "x8 y376 h20 +0x200", ".гтофшд - /unjail")
     g.Add("Text", "x8 y392 h20 +0x200", ".цфкт - /warn")
     g.Add("Text", "x8 y408 h20 +0x200", ".дв - /lastdriver")
     g.Add("Text", "x8 y424 h20 +0x200", "/ld - /lastdriver")
@@ -270,11 +235,11 @@ CommandListGui() {
     g.Add("Text", "x8 y488 h20 +0x200", ".ыл - /skick")
     g.Add("Text", "x8 y504 h20 +0x200", "/k - /kick")
     g.Add("Text", "x8 y520 h20 +0x200", ".л - /kick")
-	g.Add("Text", "x8 y536 h20 +0x200", "/ai - /auninvite")
+    g.Add("Text", "x8 y536 h20 +0x200", "/ai - /auninvite")
     g.Add("Text", "x8 y552 h20 +0x200", ".фш - /auninvite")
     g.Add("Text", "x8 y568 h20 +0x200", ".аи - /fb")
     g.Add("Text", "x8 y584 h20 +0x200", "/aif - /ainfect")
-	g.Add("Text", "x8 y600 h20 +0x200", ".фша - /ainfect")
+    g.Add("Text", "x8 y600 h20 +0x200", ".фша - /ainfect")
     g.Add("Text", "x8 y616 h20 +0x200", ".с - /c")
     g.Add("Text", "x8 y632 h20 +0x200", ".си - /cb")
     g.Add("Text", "x8 y648 h20 +0x200", ".гтьгеу - /unmute")
@@ -286,7 +251,7 @@ CommandListGui() {
     g.Add("Text", "x8 y744 h20 +0x200", ".пц - /gw")
     g.Add("Text", "x8 y760 h20 +0x200", ".мурыефе - /vehstat")
 
-	g.Add("Text", "x210 y8 h20 +0x200", ".мур - /veh")
+    g.Add("Text", "x210 y8 h20 +0x200", ".мур - /veh")
     g.Add("Text", "x210 y24 h20 +0x200", ".ашчсфк - /fixcar")
     g.Add("Text", "x210 y40 h20 +0x200", ".уьздуфвук - /templeader")
     g.Add("Text", "x210 y56 h20 +0x200", "/tl - /templeader")
@@ -302,14 +267,14 @@ CommandListGui() {
     g.Add("Text", "x210 y232 h20 +0x200", ".дфыевкшмук - /lastdriver")
     g.Add("Text", "x210 y248 h20 +0x200", ".вудшеуь - /delitem")
     g.Add("Text", "x210 y264 h20 +0x200", "/gc - /getcar")
-	g.Add("Text", "x210 y184 h20 +0x200", ".пиздец - Мольба о помощи")
+    g.Add("Text", "x210 y184 h20 +0x200", ".пиздец - Мольба о помощи")
     g.Add("Text", "x210 y280 h20 +0x200", ".пс - /getcar")
     g.Add("Text", "x210 y296 h20 +0x200", ".фв - /admins")
     g.Add("Text", "x210 y312 h20 +0x200", "/ad - /admins")
     g.Add("Text", "x210 y328 h20 +0x200", ".з - /players")
     g.Add("Text", "x210 y344 h20 +0x200", "/p - /players")
     g.Add("Text", "x210 y360 h20 +0x200", ".здфнукы - /players")
-	g.Add("Text", "x210 y376 h20 +0x200", ".рес - /rescue")
+    g.Add("Text", "x210 y376 h20 +0x200", ".рес - /rescue")
     g.Add("Text", "x210 y392 h20 +0x200", "/htc - /rescue")
     g.Add("Text", "x210 y408 h20 +0x200", ".ез - /tp")
     g.Add("Text", "x210 y424 h20 +0x200", ".ызус - /spec")
@@ -319,11 +284,11 @@ CommandListGui() {
     g.Add("Text", "x210 y488 h20 +0x200", "/sp - /spec")
     g.Add("Text", "x210 y504 h20 +0x200", ".ыз - /spec")
     g.Add("Text", "x210 y520 h20 +0x200", "/so - /specoff")
-	g.Add("Text", "x210 y536 h20 +0x200", ".ыщ - /specoff")
+    g.Add("Text", "x210 y536 h20 +0x200", ".ыщ - /specoff")
     g.Add("Text", "x210 y552 h20 +0x200", "/kill - /hp 0")
     g.Add("Text", "x210 y568 h20 +0x200", ".лшдд - /hp 0")
     g.Add("Text", "x210 y584 h20 +0x200", ".пр - /gh")
-	g.Add("Text", "x210 y600 h20 +0x200", ".штсфк - /incar")
+    g.Add("Text", "x210 y600 h20 +0x200", ".штсфк - /incar")
     g.Add("Text", "x210 y616 h20 +0x200", ".штм - /inv")
     g.Add("Text", "x210 y632 h20 +0x200", ".рз - /hp")
     g.Add("Text", "x210 y648 h20 +0x200", ".шв - /id")
@@ -335,7 +300,7 @@ CommandListGui() {
     g.Add("Text", "x210 y744 h20 +0x200", ".уыз2 - /esp2")
     g.Add("Text", "x210 y760 h20 +0x200", ".уыз3 - /esp3")
 
-	g.Add("Text", "x410 y8 h20 +0x200", ".пуесфк - /getcar")
+    g.Add("Text", "x410 y8 h20 +0x200", ".пуесфк - /getcar")
     g.Add("Text", "x410 y24 h20 +0x200", ".ифт - /ban")
     g.Add("Text", "x410 y40 h20 +0x200", ".вудмур - /delveh")
     g.Add("Text", "x410 y56 h20 +0x200", ".ьез - /mtp")
@@ -353,12 +318,12 @@ CommandListGui() {
     g.Add("Text", "x410 y248 h20 +0x200", ".ц - /w")
     g.Add("Text", "x410 y264 h20 +0x200", ".ыв - /setdim")
     g.Add("Text", "x410 y280 h20 +0x200", ".сршву - /chide")
-    g.Add("Text", "x410 y296 h20 +0x200", ".афк - /a афк мин{left 4}")
+    g.Add("Text", "x410 y296 h20 +0x200", ".афк - /a афк мин")
     g.Add("Text", "x410 y312 h20 +0x200", ".фгтсгаа - /auncuff")
     g.Add("Text", "x410 y328 h20 +0x200", ".фсгаа - /acuff")
     g.Add("Text", "x410 y344 h20 +0x200", ".акууямур - /freezveh")
     g.Add("Text", "x410 y360 h20 +0x200", "/scd - /setcardim")
-	g.Add("Text", "x410 y376 h20 +0x200", ".ыуесфквшь - /setcardim")
+    g.Add("Text", "x410 y376 h20 +0x200", ".ыуесфквшь - /setcardim")
     g.Add("Text", "x410 y392 h20 +0x200", ".ысв - /setcardim")
     g.Add("Text", "x410 y408 h20 +0x200", "/rst - /resettempname")
     g.Add("Text", "x410 y424 h20 +0x200", ".кые - /resettempname")
@@ -368,11 +333,11 @@ CommandListGui() {
     g.Add("Text", "x410 y488 h20 +0x200", "/dv - /delveh")
     g.Add("Text", "x410 y504 h20 +0x200", ".вм - /delveh")
     g.Add("Text", "x410 y520 h20 +0x200", ".рфкв - /hardban")
-	g.Add("Text", "x410 y536 h20 +0x200", "/hard - /hardban")
+    g.Add("Text", "x410 y536 h20 +0x200", "/hard - /hardban")
     g.Add("Text", "x410 y552 h20 +0x200", "/as - /asms")
     g.Add("Text", "x410 y568 h20 +0x200", ".фы - /asms")
     g.Add("Text", "x410 y584 h20 +0x200", ".пез - /gtp")
-	g.Add("Text", "x410 y600 h20 +0x200", ".пь - /gm")
+    g.Add("Text", "x410 y600 h20 +0x200", ".пь - /gm")
     g.Add("Text", "x410 y616 h20 +0x200", ".тс - /noclip")
     g.Add("Text", "x410 y632 h20 +0x200", "/nc - /noclip")
     g.Add("Text", "x410 y648 h20 +0x200", "/acf - /acuff")
@@ -412,6 +377,22 @@ PunishGui() {
     g.Show("h320 w320")
 }
 
+LoadImgMem(fileName) {
+    url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" . fileName
+    try {
+        whr := ComObject("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", url, true)
+        whr.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        whr.Send()
+        whr.WaitForResponse()
+        pStream := DllCall("Shlwapi\SHCreateMemStream", "Ptr", whr.ResponseBody, "UInt", whr.ResponseBody.MaxIndex() + 1, "Ptr")
+        DllCall("gdiplus\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr*", &pBitmap := 0)
+        DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap := 0, "UInt", 0)
+        return "HBITMAP:" . hBitmap
+    } catch {
+        return ""
+    }
+}
 ; --- ГОРЯЧИЕ СТРОКИ И ОТИГРЫШИ ---
 ::.ку::Привет, сегодня я слежу за тобой. Хорошего стрима
 ::.привет::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
@@ -442,13 +423,13 @@ PunishGui() {
     SendInput("/asms " qdin_edit.Value " 2/3 предупреждений за ")
 }
 :X:.3п:: {
-    SendInput("/asms " qdin_edit.Value " 3/3 предупреждений за .Если продолжешь нарушать, будет полноценное наказание. {left 56}")
+    SendInput("/asms " qdin_edit.Value " 3/3 предупреждений за .Если продолжешь нарушать, будет полноценное наказание. ")
 }
 :X:.не:: {
-    SendInput("/asms Не нарушайте, иначе Вы получите наказание.{left 43}")
+    SendInput("/asms Не нарушайте, иначе Вы получите наказание. ")
 }
 :X:/ye:: {
-    SendInput("/asms Не нарушайте, иначе Вы получите наказание. {left 43}")
+    SendInput("/asms Не нарушайте, иначе Вы получите наказание. ")
 }
 :X:.уст:: {
     SendInput("/asms " qdin_edit.Value " Не стоит нарушать правила сервера.")
@@ -456,3 +437,90 @@ PunishGui() {
 :X:/ecn:: {
     SendInput("/asms " qdin_edit.Value " Не нарушай, иначе ты получишь предупреждение.")
 }
+
+; Телепорты короткие команды (в v2 пишется как обычные горячие строки)
+::.лспд::/ctp 429 -980 30.50
+::.бол::/ctp 287.70 -578.35 50
+::.шд::/ctp -434.87 6024.54 31.50
+::.фз::/ctp -2336 3257 32.50
+::.мэр::/ctp -534.70 -222.07 37.60
+::.визл::/ctp -593 -929 24
+::.фиб::/ctp 2527 -377 93
+::.бал::/ctp -70.06 -1824.64 26.94
+::.ваг::/ctp 967 -1817 31
+::.фэм::/ctp -204.29 -1513.69 31.60
+::.бладс::/ctp 496 -1330 29.40
+::.мара::/ctp 983.018 -2496.230 28.769
+::.лкн::/ctp 1385 1154 114.40
+::.рм::/ctp -1526 858 181
+::.як::/ctp -1556.36 113.07 57
+::.мекс::/ctp 381.03 23.12 91.40
+::.ам::/ctp -1895.23 2027.19 141
+::.лост::/ctp 969.84 -128.40 74.40
+::.аод::/ctp 1995.99 3062.44 47.06
+::.ириш::/ctp -3022 105 11.30
+::.клаб::/ctp 1588.65 6445.38 25
+::.рич::/ctp -1302.49 294.52 64.50
+::.манор::/ctp -58.20 343.73 111.80
+::.конт::/ctp -1865.51 -355.96 57
+::.хум::/ctp 3569.54 3789.48 30
+::.мейз::/ctp -75 -818 326
+::.каз::/ctp 1110.117 217.0512 -49.56448
+::.аш::/ctp -620 -2264 6
+::.гг::/ctp -257 -2023 30
+::.бургер::/ctp -1171.31 -890.20 13.90
+::.багама::/ctp -1391.30 -585.35 30
+::.кайо::/ctp 4488.58 -4493.52 4
+::.авиа::/ctp 3035.21 -4688.55 15
+::.мол::/ctp 61.67 -1751.80 47
+::.трас::/ctp 7400 3946 1124
+::.аук::/ctp -833 -699.50 27
+::.бокс::/ctp 8.56 -1658.55 28.71
+::.бар::/ctp -305.09 6259.59 30.92
+::.бк::/ctp 500.44 109.79 96.49
+::.ванила::/ctp 131.33 -1302.93 29.23
+::.починка::/ctp -1430.45 -450.5 35.91
+::.лск4::/ctp 1175.47 2671.33 37.85
+::.порт::/ctp 417 -2501 13.46
+::.стр::/ctp 1304 1453 98.87
+::.лес::/ctp -321 6093 31.14
+::.бмара::/ctp 1302 -1646 51.04
+::.самол::/ctp 1473 2730 37.38
+
+::.чит::/hardban 9999 Cheats
+::/xbn::/hardban 9999 Cheats
+::.варн::/warn
+::/dfhy::/warn
+::.мут::/mute
+::/ven::/mute
+::.дем::/ajail
+::/ltv::/ajail
+::.бан::/ban
+::/,fy::/ban
+::.хард::/hardban
+::/[fhl::/hardban
+::.гб::/gunban
+::/u,::/gunban
+::.пгтифт::/gunban
+::.запретка::/ban 3.5 ОПС
+::/pfghtnrf::/ban 3.5 ОПС
+::.звук::/mute 120 Мешающие звуки
+::/pder::/mute 120 Мешающие звуки
+::.помеха::/ajail 10 3.6.2 ОПС
+::/gjvt[f::/ajail 10 3.6.2 ОПС
+::.кик::/kick 3.6.2 ОПС
+::/rbr::/kick 3.6.2 ОПС
+::.нрд::/ajail 15 nonRP Drive
+::.нрп::/ajail 15 nonRP Поведение
+::.дб::/ajail 30 DB
+::.дм::/gunban 5 DM
+::.дмд::/ajail 120 DM
+::.пг::/ajail 35 PG
+::.муз::/mute 30 Music in ZZ
+::.смник::/ajail 720 Смените Имя_Фамилия согласно правилам сервера
+::.оскадм::/ban 5 Оскорбление администрации
+::.верт::/veh sparrowc 0 0
+::/dthn::/veh sparrowc 0 0
+::.маш::/veh bdivo 0 0
+::/vfi::/veh bdivo 0 0
+::.скин::/skin

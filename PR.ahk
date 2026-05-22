@@ -6,6 +6,7 @@ SetWorkingDir %A_ScriptDir%
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #KeyHistory 0
+Menu, Tray, NoIcon   ; Отключаем вторую лишнюю иконку в трее
 
 titlcolor = df005c   ; Цвет заголовка (HEX-код)
 
@@ -27,7 +28,7 @@ IfExist, %icon_img%
 Menu, Tray, Icon, %icon_img%
 
 Gui, 2: -MaximizeBox
-Gui, 2: Show, w470 h520, Varion-PR Binder
+Gui, 2: Show, w470 h520, Varion-RP PR Binder
 Gui, 2: Color, 282b31
 Gui, 2: Font, s9,
 Gui, 2: Font, cWhite,Bahnschrift
@@ -249,9 +250,9 @@ Info:
 	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Моментально обновить биндер с GitHub.
     Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Полностью закрыть биндер.
     Gui, Info: Font, s14,
-    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - Olezhik
-    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - Olezhik
-    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - Olezhik
+    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - olezhik
+    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - olezhik
+    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - yokkk
 Return
 
 Teleports:
@@ -498,7 +499,7 @@ Cheatsheet:
         Gui 3: Add, Text, cWhite, Даун, аутист
         Gui 3: Add, Text, cYellow, Ban 3-5 дней.(если намеренно спамит 10-15 дней или хард).
         Gui 3: Add, Text, cWhite, Петух, куколд, гидра
-        Gui 3: Add, Text, cYellow, Mute 240 минут (если намеренно начнет говорить several раз Ban 3-5 дней).
+        Gui 3: Add, Text, cYellow, Mute 240 минут (если намеренно начнет говорить несколько раз Ban 3-5 дней).
         Gui 3: Add, Text, cWhite,
         Gui 3: Add, Text, cAqua,  Любые завуал. оск. вероисповедания | Ban 15 - 30 дней / Hardban 15-30 дней / Permban.
         Gui 3: Add, Text, cWhite,  Хохол, хач, жид, чинк, пиндос

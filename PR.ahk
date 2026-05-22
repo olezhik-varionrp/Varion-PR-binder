@@ -129,7 +129,7 @@ InfoGui() {
     g.SetFont("s14")
     g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - olezhik")
     g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - olezhik")
-    g.Add("Text", "x8 y250 h23 +0x200", "Дизайн иконки - yokkk")
+    g.Add("Text", "x8 y250 h23 +0x200", "DS - Olezhik.ad")
     g.Show("h280 w540")
 }
 

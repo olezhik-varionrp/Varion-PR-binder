@@ -7,13 +7,48 @@ SetWorkingDir %A_ScriptDir%
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #KeyHistory 0
-;
 
-titlcolor = df005c
-buildscr = 51
-downlurl := "https://flayme.ucoz.net/PR/PR.ahk"
-downllen := "https://flayme.ucoz.net/PR/verlen.ini"
+titlcolor = df005c   ; Цвет заголовка
+buildscr = 51        ; Текущая версия (совпадает с version.ini)
 
+; ТВОИ ПРАВИЛЬНЫЕ ССЫЛКИ ДЛЯ ОБНОВЛЕНИЯ:
+downlurl := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/PR.ahk"
+downllen := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/version.ini"
+
+; ==================== БЛОК АВТО-ОБНОВЛЕНИЯ ====================
+whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+try {
+    whr.Open("GET", downllen, true)
+    whr.Send()
+    whr.WaitForResponse()
+    VersionText := whr.ResponseText
+    RegExMatch(VersionText, "version=(\d+)", Match)
+    NewVersion := Match1
+    if (NewVersion > buildscr) {
+        MsgBox, 4, Обновление, Доступна новая версия биндера v%NewVersion%! Хотите обновить?
+        IfMsgBox, Yes
+        {
+            UrlDownloadToFile, %downlurl%, %A_ScriptDir%\PR_new.ahk
+            if !ErrorLevel {
+                FileDelete, update.bat
+                FileAppend,
+                (
+                @echo off
+                timeout /t 1 /nobreak > nul
+                del "%A_ScriptFullPath%"
+                ren "%A_ScriptDir%\PR_new.ahk" "%A_ScriptName%"
+                start "" "%A_ScriptFullPath%"
+                del "`%~f0"
+                ), update.bat
+                Run, update.bat,, Hide
+                ExitApp
+            }
+        }
+    }
+} catch {
+    ; Если нет интернета, просто запускаемся дальше
+}
+; ==============================================================
 
 ;===========================================================================================================================================================
 ; Основная среда ==============================================================================================================================

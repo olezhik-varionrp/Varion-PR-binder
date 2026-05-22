@@ -1,5 +1,4 @@
 ; ========================================================== PR ASSISTANT BINDER ==========================================================
-
 #SingleInstance, Force
 #UseHook
 #NoEnv
@@ -8,58 +7,7 @@ SetWorkingDir %A_ScriptDir%
 #HotkeyInterval 99000000
 #KeyHistory 0
 
-; Настройки внешнего вида и версии
 titlcolor = df005c   ; Цвет заголовка (HEX-код)
-buildscr = 51        ; Текущая версия твоего биндера
-
-; Твои ссылки на GitHub
-downlurl := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/PR.ahk"
-downllen := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/version.ini"
-
-; ==================== БЛОК АВТО-ОБНОВЛЕНИЯ (ИСПРАВЛЕННЫЙ) ====================
-; Включаем TLS 1.2 безопасность для работы с GitHub в 2026 году
-DllCall("InitializeCriticalSection", "Ptr", 0)
-
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-try {
-    whr.Open("GET", downllen, true)
-    ; Обязательный заголовок, чтобы GitHub не блокировал скрипт
-    whr.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-    whr.Send()
-    whr.WaitForResponse()
-    VersionText := whr.ResponseText
-    
-    RegExMatch(VersionText, "version=(\d+)", Match)
-    NewVersion := Match1
-    
-    if (NewVersion != "" && NewVersion > buildscr) {
-        MsgBox, 4, Обновление, Доступна новая версия биндера v%NewVersion%! Хотите обновить?
-        IfMsgBox, Yes
-        {
-            UrlDownloadToFile, %downlurl%, %A_ScriptDir%\PR_new.ahk
-            if !ErrorLevel {
-                FileDelete, update.bat
-                FileAppend,
-                (
-                @echo off
-                timeout /t 1 /nobreak > nul
-                del "%A_ScriptFullPath%"
-                ren "%A_ScriptDir%\PR_new.ahk" "%A_ScriptName%"
-                start "" "%A_ScriptFullPath%"
-                del "`%~f0"
-                ), update.bat
-                Run, update.bat,, Hide
-                ExitApp
-            } else {
-                MsgBox, 16, Ошибка, Не удалось скачать файл обновления.
-            }
-        }
-    }
-} catch {
-    ; Ошибка подключения к сети, просто запускаем биндер без обновления
-}
-; ==============================================================================
-
 
 ;===========================================================================================================================================================
 ; Основная среда ==============================================================================================================================
@@ -255,7 +203,7 @@ FixLog:
     Gui, FixLog: Add, GroupBox, x20 y5 w660 h50 cA52A2A,
     Gui, FixLog: Add, Text, cee5180 x270 y23 +0x200, Список изменений:
 
-    Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуализация биндера произвелась 02.09.2024
+    Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуализация биндера произвелась в мае 2026 года.
     Gui, FixLog: Add, Text,  x25 y100 cWhite, by olezhik
 
     Gui, FixLog: Show, h160 w700, Список изменений
@@ -299,8 +247,8 @@ Info:
     Gui, Info: Add, Text, x8 y60  h23 +0x200, В окно "ID стримера" вводите динамик медиа, за которым следите.
     Gui, Info: Add, Text, x8 y100  h23 +0x200, Доступные команды для автоматического динамика:
     Gui, Info: Add, Text, x8 y120  h23 +0x200, /asms; /setdim 1/0; .1п; .2п; .3п;
-	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Перезапустить.
-    Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Закрыть.
+	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Перезапустить лоадер.
+    Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Закрыть биндер.
     Gui, Info: Font, s14,
     Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - olezhik
     Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - olezhik
@@ -854,6 +802,7 @@ return
 :?:.згддекгтл::/pulltrunk
 :?:.акууя::/freez
 :?:.езсфк::/tpcar
+:?:.акууяф::/freezveh
 :?:.дфыевкшмук::/lastdriver
 :?:.вудшеуь::/delitem
 :?:/gc::/getcar
@@ -912,7 +861,6 @@ return
 :?:.афк::/a афк мин{left 4}
 :?:.фгтсгаа::/auncuff
 :?:.фсгаа::/acuff
-:?:.акууяф::/freeza
 :?:/scd::/setcardim
 :?:.ыуесфквшь::/setcardim
 :?:.ысв::/setcardim

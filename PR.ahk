@@ -1,6 +1,35 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Убираем стандартную зеленую иконку в v2, оставляем только лоадер
+A_IconHidden := 1  ; Полностью скрываем стандартную зеленую иконку процесса в v2
+
+; ================= ИНИЦИАЛИЗАЦИЯ ДВИЖКА КАРТИНОК В ОЗУ ДЛЯ V2 =================
+InitGDIPlus() {
+    buf := Buffer(24, 0)
+    NumPut("UInt", 1, buf, 0)
+    DllCall("gdiplus\GdiplusStartup", "Ptr*", &pToken := 0, "Ptr", buf, "Ptr", 0)
+}
+InitGDIPlus()
+
+LoadImgMem(fileName) {
+    url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" . fileName
+    try {
+        whr := ComObject("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", url, true)
+        whr.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        whr.Send()
+        whr.WaitForResponse()
+        
+        ; Создаем потоковую картинку в оперативной памяти (ОЗУ)
+        pStream := DllCall("Shlwapi\SHCreateMemStream", "Ptr", whr.ResponseBody, "UInt", whr.ResponseBody.MaxIndex() + 1, "Ptr")
+        DllCall("gdiplus\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr*", &pBitmap := 0)
+        DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap := 0, "UInt", 0)
+        ObjRelease(pStream)
+        return "HBITMAP:" . hBitmap
+    } catch {
+        return ""
+    }
+}
+; ==============================================================================
 
 titlcolor := "df005c"
 
@@ -57,7 +86,7 @@ MainGui := Gui("-MaximizeBox", "PR-Assistant Binder")
 MainGui.BackColor := "282b31"
 MainGui.SetFont("s9 cWhite", "Bahnschrift")
 
-; Левые графические кнопки из памяти
+; Левые графические кнопки из памяти напрямую с GitHub
 MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
 MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
 MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
@@ -119,12 +148,12 @@ tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
 cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
 cb6.Value := Radio6
 
-; Правые кнопки из ОЗУ
+; Правые кнопки-картинки из ОЗУ
 MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
 MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
 MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
 
-; Памятка внизу
+; Нижняя текстовая панель
 MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
 MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
 MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
@@ -139,130 +168,6 @@ MainGui.Add("Text", "x248 y455 h20 +0x200", ".искин - Выдача скин
 MainGui.Add("Text", "x248 y475 h20 +0x200", ".од - Запрос одобрения в ЛС")
 
 MainGui.Show("w470 h520")
-
-; --- ОЗУ ПОДГРУЗКА ИЗ СЕТИ ---
-LoadImgMem(fileName) {
-    url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" . fileName
-    try {
-        whr := ComObject("WinHttp.WinHttpRequest.5.1")
-        whr.Open("GET", url, true)
-        whr.SetRequestHeader("User-Agent", "Mozilla/5.0")
-        whr.Send()
-        whr.WaitForResponse()
-        pStream := DllCall("Shlwapi\SHCreateMemStream", "Ptr", whr.ResponseBody, "UInt", whr.ResponseBody.MaxIndex() + 1, "Ptr")
-        DllCall("gdiplus\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr*", &pBitmap := 0)
-        DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap := 0, "UInt", 0)
-        return "HBITMAP:" . hBitmap
-    } catch {
-        return ""
-    }
-}
-
-SaveID() {
-    IniWrite(qdin_edit.Value, "Settings.ini", "IDStream", "qdin")
-    MsgBox("ID Стримера сохранен!", "Сохранение", 64)
-}
-
-SaveOption() {
-    IniWrite(cb1.Value, "Settings.ini", "Settings", "/hidecheatinfo")
-    IniWrite(cb2.Value, "Settings.ini", "Settings", "/zzdebug")
-    IniWrite(cb3.Value, "Settings.ini", "Settings", "/gm")
-    IniWrite(cb4.Value, "Settings.ini", "Settings", "/esp3")
-    IniWrite(cb5.Value, "Settings.ini", "Settings", "/templeader")
-    IniWrite(cb6.Value, "Settings.ini", "Settings", "/chide")
-    IniWrite(tlead_edit.Value, "Settings.ini", "templeader", "tlead")
-    
-    IniWrite(hot1.Value, "Settings.ini", "KeySetup", "KEY1")
-    IniWrite(hot2.Value, "Settings.ini", "KeySetup", "KEY2")
-    IniWrite(hot3.Value, "Settings.ini", "KeySetup", "KEY3")
-    IniWrite(hot4.Value, "Settings.ini", "KeySetup", "KEY4")
-    IniWrite(hot5.Value, "Settings.ini", "KeySetup", "KEY5")
-    IniWrite(hot6.Value, "Settings.ini", "KeySetup", "KEY6")
-    IniWrite(hot7.Value, "Settings.ini", "KeySetup", "KEY7")
-    IniWrite(hot8.Value, "Settings.ini", "KeySetup", "KEY8")
-    IniWrite(hot9.Value, "Settings.ini", "KeySetup", "KEY9")
-    IniWrite(hot10.Value, "Settings.ini", "KeySetup", "KEY10")
-    IniWrite(hot11.Value, "Settings.ini", "KeySetup", "KEY11")
-    IniWrite(hot12.Value, "Settings.ini", "KeySetup", "KEY12")
-    IniWrite(hot13.Value, "Settings.ini", "KeySetup", "KEY13")
-    IniWrite(hot14.Value, "Settings.ini", "KeySetup", "KEY14")
-    Reload()
-}
-
-VhodLogic() {
-    SendMessage(0x50,, 0x4090409,, "A")
-    SendInput("{T}/gm{Enter}")
-    Sleep(300)
-    if (cb4.Value == 1) {
-        SendInput("{T}/esp3{Enter}")
-        Sleep(300)
-    }
-    if (cb6.Value == 1) {
-        SendInput("{T}/chide{Enter}")
-        Sleep(300)
-    }
-    if (cb2.Value == 1) {
-        SendInput("{T}/zzdebug{Enter}")
-        Sleep(300)
-    }
-    if (cb1.Value == 1) {
-        SendInput("{T}/hidecheatinfo{Enter}")
-        Sleep(300)
-    }
-    if (cb3.Value == 1) {
-        SendInput("{T}/gm{Enter}")
-        Sleep(300)
-    }
-    if (cb5.Value == 1) {
-        SendInput("{T}/templeader " tlead_edit.Value "{Enter}")
-    }
-}
-
-InfopredGui() {
-    g := Gui(, "Предупреждения")
-    g.BackColor := "282b31"
-    g.SetFont("s12 cWhite", "Bahnschrift")
-    g.Add("GroupBox", "x20 y5 w660 h50 cA52A2A")
-    g.Add("Text", "cee5180 x250 y23 +0x200", "Предупреждения на стриме:")
-    g.Add("Text", "x25 y70 cYellow", "Бинд: .1п/.2п/.3п - нельзя доводить медиа до 3/3 предупреждений.")
-    g.Add("Text", "x25 y100 cWhite", "Так же не забывайте есть и устные предупреждения за мелкие нарушения.")
-    g.Add("Text", "x25 y130 cYellow", ".уст - Устное предупреждение медиа-партнёру.")             
-    g.Add("Text", "x25 y190 cee5180", "1 предупреждение - нарушение на 80-120 минут деморгана.")
-    g.Add("Text", "x25 y220 cWhite", "Например, DB + PG + NRD + OOC оск - это все стакается в одно предупреждение.")
-    g.Add("Text", "x25 y250 cWhite", "(Предупреждайте словесно за мелкие нарушения перед стаком в 1/3 preads).")
-    g.Add("Text", "x25 y280 cee5180", "2 предупреждения - нарушение от бана.")
-    g.Add("Text", "x25 y310 cRed", "Прямое оскорбление родных - выдаёте сразу бан (не хард) на 30 дней.")
-    g.Show("h340 w700")
-}
-
-FixLogGui() {
-    g := Gui(, "Список изменений")
-    g.BackColor := "282b31"
-    g.SetFont("s12 cWhite", "Bahnschrift")
-    g.Add("GroupBox", "x20 y5 w660 h50 cA52A2A")
-    g.Add("Text", "cee5180 x270 y23 +0x200", "Список изменений:")
-    g.Add("Text", "x25 y80 cWhite", "- Binder updated successfully to AHK v2 (22.05.2026).")
-    g.Add("Text", "x25 y100 cWhite", "by defix")
-    g.Show("h160 w700")
-}
-
-InfoGui() {
-    g := Gui(, "Информация о биндере")
-    g.BackColor := "282b31"
-    g.SetFont("s12 cWhite", "Bahnschrift")
-    g.Add("Text", "cee5180 x8 y8 h23 +0x200", "Данный Binder создан для облегчения работы PR ассистентов.")
-    g.SetFont("s11")
-    g.Add("Text", "x8 y40 +0x200", "Все команды, телепорты, наказания можно вводить транслитом.")
-    g.Add("Text", "x8 y60 h23 +0x200", "В окно 'ID стримера' вводите динамик медиа, за которым следите.")
-    g.Add("Text", "x8 y100 h23 +0x200", "Доступные команды для автоматического динамика:")
-    g.Add("Text", "x8 y120 h23 +0x200", "/asms; /setdim 1/0; .1п; .2п; .3п;")
-    g.Add("Text", "cYellow x8 y150 h23 +0x200", "Ctrl + F9 - Моментально обновить биндер с GitHub.")
-    g.Add("Text", "cYellow x8 y170 h23 +0x200", "Ctrl + F10 - Полностью закрыть биндер.")
-    g.SetFont("s14")
-    g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - flayme")
-    g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - defix")
-    g.Show("h280 w540")
-}
 TeleportsGui() {
     g := Gui(, "Телепорты")
     g.BackColor := "282b31"

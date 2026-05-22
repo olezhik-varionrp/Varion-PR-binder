@@ -1,8 +1,28 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Скрываем зеленую иконку процесса в трее
+A_IconHidden := 1  ; Скрываем стандартную зеленую иконку процесса в трее
 
 titlcolor := "df005c"
+
+; Создаем скрытую папку для графики в AppData, чтобы не мусорить в папке биндера
+appDataPath := EnvGet("AppData") "\VarionBinder_img"
+if !DirExist(appDataPath)
+    DirCreate(appDataPath)
+
+; Надежная функция загрузки картинок через стандартный кэш
+LoadImg(imgName) {
+    global appDataPath
+    localPath := appDataPath "\" imgName
+    if !FileExist(localPath) {
+        url := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/" imgName
+        try {
+            Download(url, localPath)
+        } catch {
+            return ""
+        }
+    }
+    return localPath
+}
 
 ; Чтение настроек из INI
 Radio1 := IniRead("Settings.ini", "Settings", "/hidecheatinfo", "0")
@@ -26,19 +46,19 @@ qdin_edit := MainGui.Add("Edit", "x7 y322 w80 h21 +Number cBlack", qdin)
 MainGui.Add("Text", "x304 y156 +0x200", "/templeader")
 tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
 
-; Подгрузка графических кнопок напрямую в ОЗУ из GitHub
-MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
-MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
-MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
-MainGui.Add("Picture", "x7 y165 w80 h41", LoadImgMem("bind.png")).OnEvent("Click", (*) => InfoGui())
-MainGui.Add("Picture", "x7 y352 w80 h30", LoadImgMem("save.png")).OnEvent("Click", (*) => SaveID())
+; Привязываем картинки-кнопки из скрытого системного кэша
+MainGui.Add("Picture", "x7 y15 w80 h41", LoadImg("tp.png")).OnEvent("Click", (*) => TeleportsGui())
+MainGui.Add("Picture", "x7 y65 w80 h41", LoadImg("spis.png")).OnEvent("Click", (*) => CommandListGui())
+MainGui.Add("Picture", "x7 y115 w80 h41", LoadImg("nak.png")).OnEvent("Click", (*) => PunishGui())
+MainGui.Add("Picture", "x7 y165 w80 h41", LoadImg("bind.png")).OnEvent("Click", (*) => InfoGui())
+MainGui.Add("Picture", "x7 y352 w80 h30", LoadImg("save.png")).OnEvent("Click", (*) => SaveID())
 
-MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
-MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
-MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
+MainGui.Add("Picture", "x302 y248 w150 h41", LoadImg("pred.png")).OnEvent("Click", (*) => InfopredGui())
+MainGui.Add("Picture", "x302 y300 w150 h30", LoadImg("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
+MainGui.Add("Picture", "x302 y340 w150 h41", LoadImg("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
 
-MainGui.Add("Picture", "x100 y9 w184 h27", LoadImgMem("bindinfo.png"))
-MainGui.Add("Picture", "x294 y9 w168 h27", LoadImgMem("auto.png"))
+MainGui.Add("Picture", "x100 y9 w184 h27", LoadImg("bindinfo.png"))
+MainGui.Add("Picture", "x294 y9 w168 h27", LoadImg("auto.png"))
 
 ; Чекбоксы
 cb1 := MainGui.Add("CheckBox", "x304 y50 w120 h23", "/hidecheatinfo")
@@ -129,7 +149,7 @@ InfoGui() {
     g.SetFont("s14")
     g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - olezhik")
     g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - olezhik")
-    g.Add("Text", "x8 y250 h23 +0x200", "DS - Olezhik.ad")
+    g.Add("Text", "x8 y250 h23 +0x200", "Дизайн иконки - yokkk")
     g.Show("h280 w540")
 }
 

@@ -1,8 +1,8 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-A_IconHidden := 1  ; Полностью отключаем зеленую иконку процесса в v2
+A_IconHidden := 1  ; Полностью отключаем зеленую иконку процесса в трее
 
-; ================= ИНИЦИАЛИЗАЦИЯ ДВИЖКА КАРТИНОК В ОЗУ ДЛЯ V2 =================
+; ================= ИСПРАВЛЕННЫЙ ДВИЖК ЗАГРУЗКИ ИЗ ГИТХАБА В ОЗУ =================
 InitGDIPlus() {
     buf := Buffer(24, 0)
     NumPut("UInt", 1, buf, 0)
@@ -19,9 +19,22 @@ LoadImgMem(fileName) {
         whr.Send()
         whr.WaitForResponse()
         
-        pStream := DllCall("Shlwapi\SHCreateMemStream", "Ptr", whr.ResponseBody, "UInt", whr.ResponseBody.MaxIndex() + 1, "Ptr")
+        arr := whr.ResponseBody
+        pData := DllCall("SafeArrayAccessData", "Ptr", ComObjValue(arr), "Ptr*", &pBits := 0, "UInt")
+        size := arr.MaxIndex() + 1
+        
+        ; Создаем глобальный буфер и переносим данные в IStream
+        hMem := DllCall("GlobalAlloc", "UInt", 0x42, "Ptr", size, "Ptr")
+        pMem := DllCall("GlobalLock", "Ptr", hMem, "Ptr")
+        DllCall("RtlMoveMemory", "Ptr", pMem, "Ptr", pBits, "Ptr", size)
+        DllCall("GlobalUnlock", "Ptr", hMem)
+        DllCall("SafeArrayUnaccessData", "Ptr", ComObjValue(arr))
+        
+        DllCall("Ole32\CreateStreamOnHGlobal", "Ptr", hMem, "Int", 1, "Ptr*", &pStream := 0)
         DllCall("gdiplus\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr*", &pBitmap := 0)
         DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", "Ptr", pBitmap, "Ptr*", &hBitmap := 0, "UInt", 0)
+        
+        DllCall("gdiplus\GdipDisposeImage", "Ptr", pBitmap)
         ObjRelease(pStream)
         return "HBITMAP:" . hBitmap
     } catch {
@@ -58,7 +71,7 @@ KEY14 := IniRead("Settings.ini", "KeySetup", "KEY14", "")
 qdin := IniRead("Settings.ini", "IDStream", "qdin", "0")
 tlead := IniRead("Settings.ini", "templeader", "tlead", "5")
 
-; Объявляем глобальные переменные для элементов GUI
+; Глобальные переменные интерфейса
 global qdin_edit, tlead_edit, cb1, cb2, cb3, cb4, cb5, cb6, hot1, hot2, hot3, hot4, hot5, hot6, hot7, hot8, hot9, hot10, hot11, hot12, hot13, hot14
 
 ; --- ОТИГРЫШИ НАЖАТИЙ КЛАВИШ ---
@@ -77,7 +90,7 @@ Func_KEY12() => (Sleep(150), SendInput("{sc14}/repair {Enter}"))
 Func_KEY13() => CheatsheetGui()
 Func_KEY14() => VhodLogic()
 
-; Привязка горячих клавиш (Синтаксис v2)
+; Привязка хоткеев
 TryHotkey(key, funcName) {
     if (key != "") {
         try Hotkey(key, (*) => funcName(), "On")
@@ -99,12 +112,12 @@ TryHotkey(KEY12, Func_KEY12)
 TryHotkey(KEY13, Func_KEY13)
 TryHotkey(KEY14, Func_KEY14)
 
-; --- ГЛАВНЫЙ ИНТЕРФЕЙС GUI ---
+; --- КОНСТРУКТОР GUI ---
 MainGui := Gui("-MaximizeBox", "PR-Assistant Binder")
 MainGui.BackColor := "282b31"
 MainGui.SetFont("s9 cWhite", "Bahnschrift")
 
-; Левые графические кнопки
+; Рисуем левые кнопки
 MainGui.Add("Picture", "x7 y15 w80 h41", LoadImgMem("tp.png")).OnEvent("Click", (*) => TeleportsGui())
 MainGui.Add("Picture", "x7 y65 w80 h41", LoadImgMem("spis.png")).OnEvent("Click", (*) => CommandListGui())
 MainGui.Add("Picture", "x7 y115 w80 h41", LoadImgMem("nak.png")).OnEvent("Click", (*) => PunishGui())
@@ -114,10 +127,11 @@ MainGui.Add("Text", "x7 y300 +0x200", "ID стримера:")
 qdin_edit := MainGui.Add("Edit", "x7 y322 w80 h21 +Number cBlack", qdin)
 MainGui.Add("Picture", "x7 y352 w80 h30", LoadImgMem("save.png")).OnEvent("Click", (*) => SaveID())
 
+; Декорации
 MainGui.Add("Picture", "x100 y9 w184 h27", LoadImgMem("bindinfo.png"))
 MainGui.Add("Picture", "x294 y9 w168 h27", LoadImgMem("auto.png"))
 
-; Сетка настройки Хоткеев из оригинального v1
+; Сетка Хоткеев
 MainGui.SetFont("s8 cWhite", "Bahnschrift")
 hot1 := MainGui.Add("Hotkey", "x110 y50 w48 h21", KEY1)
 MainGui.Add("Text", "x163 y53 w120 h14 +0x200", "asms media")
@@ -165,12 +179,12 @@ tlead_edit := MainGui.Add("Edit", "x390 y155 w21 h18 +Number cBlack", tlead)
 cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
 cb6.Value := Radio6
 
-; Правые кнопки из ОЗУ
+; Правые графические кнопки
 MainGui.Add("Picture", "x302 y248 w150 h41", LoadImgMem("pred.png")).OnEvent("Click", (*) => InfopredGui())
 MainGui.Add("Picture", "x302 y300 w150 h30", LoadImgMem("spisupdate.png")).OnEvent("Click", (*) => FixLogGui())
 MainGui.Add("Picture", "x302 y340 w150 h41", LoadImgMem("saveglobal.png")).OnEvent("Click", (*) => SaveOption())
 
-; Нижняя текстовая панель
+; Нижняя памятка
 MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
 MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
 MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
@@ -186,6 +200,7 @@ MainGui.Add("Text", "x248 y475 h20 +0x200", ".од - Запрос одобрен
 
 MainGui.Show("w470 h520")
 
+; --- ПОДМОДУЛИ И ОКНА ---
 SaveID() {
     IniWrite(qdin_edit.Value, "Settings.ini", "IDStream", "qdin")
     MsgBox("ID Стримера сохранен!", "Сохранение", 64)
@@ -216,6 +231,7 @@ SaveOption() {
     IniWrite(hot14.Value, "Settings.ini", "KeySetup", "KEY14")
     Reload()
 }
+
 VhodLogic() {
     SendMessage(0x50,, 0x4090409,, "A")
     SendInput("{T}/gm{Enter}")
@@ -568,7 +584,7 @@ CheatsheetGui() {
 ::/ghbdtn::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
 ::/gjrf::Спасибо за стрим, хорошего настроения.
 ::/rgp::Напомню, что как либо контактировать с игроками которые вели процессуальные действия - запрещено.
-::/bcrby::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на server, чтобы снять скин.
+::/bcrby::Правила не нарушать, RP моменты существенные для скина поддерживать. Будут жалобы - Вас кикнут/накажут. После окончания записи, нужно перезайти на сервер, чтобы снять скин.
 ::/pfvtyf::К сожалению, мне нужно тебя покинуть, меня заменит другой Ассистент. Хорошего продолжения стрима
 ::.jl::Предоставьте одобрение в личные сообщения.
 

@@ -203,8 +203,8 @@ FixLog:
     Gui, FixLog: Add, GroupBox, x20 y5 w660 h50 cA52A2A,
     Gui, FixLog: Add, Text, cee5180 x270 y23 +0x200, Список изменений:
 
-    Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуализация биндера произвелась в мае 2026 года.
-    Gui, FixLog: Add, Text,  x25 y100 cWhite, by olezhik
+    Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуальная версия V1.1(Изменения 22.05.2026).
+    Gui, FixLog: Add, Text,  x25 y100 cWhite, По вопросам и ошибкам обращятся в Discord Olezhik.ad или в Telegram @olezhikmanager.
 
     Gui, FixLog: Show, h160 w700, Список изменений
 return
@@ -252,7 +252,7 @@ Info:
     Gui, Info: Font, s14,
     Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - olezhik
     Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - olezhik
-    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - yokkk
+    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - olezhik
 Return
 
 Teleports:

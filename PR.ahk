@@ -28,7 +28,7 @@ IfExist, %icon_img%
 Menu, Tray, Icon, %icon_img%
 
 Gui, 2: -MaximizeBox
-Gui, 2: Show, w470 h520, Varion-RP PR Binder
+Gui, 2: Show, w470 h520, Varion by Olezhik
 Gui, 2: Color, 282b31
 Gui, 2: Font, s9,
 Gui, 2: Font, cWhite,Bahnschrift

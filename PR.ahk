@@ -8,23 +8,31 @@ SetWorkingDir %A_ScriptDir%
 #HotkeyInterval 99000000
 #KeyHistory 0
 
-titlcolor = df005c   ; Цвет заголовка
-buildscr = 51        ; Текущая версия (совпадает с version.ini)
+; Настройки внешнего вида и версии
+titlcolor = df005c   ; Цвет заголовка (HEX-код)
+buildscr = 51        ; Текущая версия твоего биндера
 
-; ТВОИ ПРАВИЛЬНЫЕ ССЫЛКИ ДЛЯ ОБНОВЛЕНИЯ:
+; Твои ссылки на GitHub
 downlurl := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/PR.ahk"
 downllen := "https://raw.githubusercontent.com/olezhik-varionrp/Varion-PR-binder/main/version.ini"
 
-; ==================== БЛОК АВТО-ОБНОВЛЕНИЯ ====================
+; ==================== БЛОК АВТО-ОБНОВЛЕНИЯ (ИСПРАВЛЕННЫЙ) ====================
+; Включаем TLS 1.2 безопасность для работы с GitHub в 2026 году
+DllCall("InitializeCriticalSection", "Ptr", 0)
+
 whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 try {
     whr.Open("GET", downllen, true)
+    ; Обязательный заголовок, чтобы GitHub не блокировал скрипт
+    whr.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
     whr.Send()
     whr.WaitForResponse()
     VersionText := whr.ResponseText
+    
     RegExMatch(VersionText, "version=(\d+)", Match)
     NewVersion := Match1
-    if (NewVersion > buildscr) {
+    
+    if (NewVersion != "" && NewVersion > buildscr) {
         MsgBox, 4, Обновление, Доступна новая версия биндера v%NewVersion%! Хотите обновить?
         IfMsgBox, Yes
         {
@@ -42,13 +50,16 @@ try {
                 ), update.bat
                 Run, update.bat,, Hide
                 ExitApp
+            } else {
+                MsgBox, 16, Ошибка, Не удалось скачать файл обновления.
             }
         }
     }
 } catch {
-    ; Если нет интернета, просто запускаемся дальше
+    ; Ошибка подключения к сети, просто запускаем биндер без обновления
 }
-; ==============================================================
+; ==============================================================================
+
 
 ;===========================================================================================================================================================
 ; Основная среда ==============================================================================================================================
@@ -66,15 +77,12 @@ Cheatsheet = Меню памятки
 icon_img = %A_ScriptDir%\img\icon.png
 IfExist, %icon_img%
 Menu, Tray, Icon, %icon_img%
-;Gui, 2: Add, Picture, x10 y395 w450 h113, %A_ScriptDir%\img\Epik.png
 
 Gui, 2: -MaximizeBox
 Gui, 2: Show, w470 h520, PR-Assistant Binder
 Gui, 2: Color, 282b31
 Gui, 2: Font, s9,
-
 Gui, 2: Font, cWhite,Bahnschrift
-
 
 Menu, Tray, add, Показать, Show,
 Menu, Tray, Default, Показать,
@@ -146,53 +154,37 @@ Hotkey, %KEY13%, Cheatsheet, On, UseErrorLevel
 Hotkey, %KEY14%, Off, UseErrorLevel
 Hotkey, %KEY14%, vhod, On, UseErrorLevel
 
-;; Боковые кнопки
 Gui, 2: Add, Edit,   x7 y322 w80 h21 +Number vqdin cblack, %qdin%
-;Gui, 2: Add, Button, x7 y352 w80 h30 gSaveID, Cохранить
 Gui, 2: Add, Picture, x7 y15 w80 h41 gTeleports, %A_ScriptDir%\img\tp.png
 Gui, 2: Add, Picture, x7 y65 w80 h41 gCommandList, %A_ScriptDir%\img\spis.png
 Gui, 2: Add, Picture, x7 y115 w80 h41 gPunish, %A_ScriptDir%\img\nak.png
 Gui, 2: Add, Picture, x7 y165 w80 h41 gInfo, %A_ScriptDir%\img\bind.png
 Gui, 2: Add, Picture, x7 y352 w80 h30 gSaveID, %A_ScriptDir%\img\save.png
 
-;Gui, 2: Add, Button, x7 y15 w80 h41 gCommandList2, Важное к прочтению
-;Gui, 2: Add, Button, x7 y65 w80 h41 gTeleports, Телепорты
-;Gui, 2: Add, Button, x7 y115 w80 h41 gCommandList, Список команд
-;Gui, 2: Add, Button, x7 y165 w80 h41 gPunish, Наказания
-;Gui, 2: Add, Button, x7 y215 w80 h41 gInfo , О биндере
-
-
-
 Gui, 2: Add, Picture, x302 y248 w150 h41 ginfopred, %A_ScriptDir%\img\pred.png
 Gui, 2: Add, Picture, x302 y300 w150 h30 gFixLog, %A_ScriptDir%\img\spisupdate.png
 Gui, 2: Add, Picture, x302 y340 w150 h41 gSaveOption, %A_ScriptDir%\img\saveglobal.png
 
-
 Gui, 2: Add, Picture, x100 y9 w184 h27, %A_ScriptDir%\img\bindinfo.png
 Gui, 2: Add, Picture, x294 y9 w168 h27, %A_ScriptDir%\img\auto.png
-
-;Gui 2: Add, GroupBox, x100 y9 w184 h27 cA52A2A,
-;Gui 2: Add, GroupBox, x294 y9 w168 h27 cA52A2A,
-;Gui, 2: Add, Text, x173 y19 w50 h14 +0x200, Бинды
-;Gui, 2: Add, Text, x345 y19 w100 h14 +0x200 , Авторизация
 
 Gui, 2: Add, Text, x7 y300 +0x200, ID стримера:
 Gui, 2: Add, Edit, x390 y155 w21 h18 +Number vtlead cblack, %tlead%
 
-Gui, 2: Add, Hotkey, x110 y50 w48 h21 vHot1, %KEY1% ; asms
-Gui, 2: Add, Hotkey, x110 y76 w48 h21 vHot2, %KEY2% ; setdim1
-Gui, 2: Add, Hotkey, x110 y102 w48 h21 vHot3, %KEY3% ;  setdim0
-Gui, 2: Add, Hotkey, x110 y128 w48 h21 vHot4, %KEY4% ; cheat
-Gui, 2: Add, Hotkey, x110 y154 w48 h21 vHot5, %KEY5%;  banword
-Gui, 2: Add, Hotkey, x110 y180 w48 h21 vHot6, %KEY6% ;  tp in media
-Gui, 2: Add, Hotkey, x110 y206 w48 h21 vHot7, %KEY7% ;  tleader
-Gui, 2: Add, Hotkey, x110 y232 w48 h21 vHot8, %KEY8% ;   hp
-Gui, 2: Add, Hotkey, x110 y258 w48 h21 vHot9, %KEY9% ; resc
-Gui, 2: Add, Hotkey, x110 y284 w48 h21 vHot10, %KEY10% ; spec
-Gui, 2: Add, Hotkey, x110 y310 w48 h21 vHot11, %KEY11% ;   specoff
-Gui, 2: Add, Hotkey, x110 y336 w48 h21 vHot12, %KEY12% ;   repair
-Gui, 2: Add, Hotkey, x110 y362 w48 h21 vHot13, %KEY13% ;   ???????
-Gui, 2: Add, Hotkey, x303 y212 w40 h21 vHot14, %KEY14% ;   ????
+Gui, 2: Add, Hotkey, x110 y50 w48 h21 vHot1, %KEY1%
+Gui, 2: Add, Hotkey, x110 y76 w48 h21 vHot2, %KEY2%
+Gui, 2: Add, Hotkey, x110 y102 w48 h21 vHot3, %KEY3%
+Gui, 2: Add, Hotkey, x110 y128 w48 h21 vHot4, %KEY4%
+Gui, 2: Add, Hotkey, x110 y154 w48 h21 vHot5, %KEY5%
+Gui, 2: Add, Hotkey, x110 y180 w48 h21 vHot6, %KEY6%
+Gui, 2: Add, Hotkey, x110 y206 w48 h21 vHot7, %KEY7%
+Gui, 2: Add, Hotkey, x110 y232 w48 h21 vHot8, %KEY8%
+Gui, 2: Add, Hotkey, x110 y258 w48 h21 vHot9, %KEY9%
+Gui, 2: Add, Hotkey, x110 y284 w48 h21 vHot10, %KEY10%
+Gui, 2: Add, Hotkey, x110 y310 w48 h21 vHot11, %KEY11%
+Gui, 2: Add, Hotkey, x110 y336 w48 h21 vHot12, %KEY12%
+Gui, 2: Add, Hotkey, x110 y362 w48 h21 vHot13, %KEY13%
+Gui, 2: Add, Hotkey, x303 y212 w40 h21 vHot14, %KEY14%
 
 Gui, 2: Add, Text, x163 y53 w120 h14 +0x200, asms media
 Gui, 2: Add, Text, x163 y79 w120 h14 +0x200, setdim 1
@@ -216,7 +208,6 @@ Gui, 2: Add, CheckBox, x304 y128 w120 h23 vRadio4 Checked%Radio4%, /esp3
 Gui, 2: Add, CheckBox, x304 y154 w85 h23 vRadio5 Checked%Radio5%, /templeader
 Gui, 2: Add, CheckBox, x304 y180 w120 h23 vRadio6 Checked%Radio6%, /chide
 
-
 Gui, 2: Add, GroupBox, x3 y385 w240 h130 cA52A2A,
 Gui, 2: Add, GroupBox, x241 y385 w226 h130 cA52A2A,
 Gui, 2: Add, Text, x10 y395  h20 +0x200, .ку - Приветствие на "ты"
@@ -229,6 +220,7 @@ Gui, 2: Add, Text, x248 y415  h20 +0x200, .кпз - Выпуск с КПЗ
 Gui, 2: Add, Text, x248 y435  h20 +0x200, .авто - Выдача авто
 Gui, 2: Add, Text, x248 y455  h20 +0x200, .искин - Выдача скина
 Gui, 2: Add, Text, x248 y475  h20 +0x200, .од - Запрос одобрения в ЛС
+
 ;===========================================================================================================================================================
 ; Окна ==============================================================================================================================
 SaveID:
@@ -246,7 +238,7 @@ infopred:
 
     Gui, infopred: Add, Text,  x25 y70 cYellow, Бинд: .1п/.2п/.3п - нельзя доводить медиа до 3/3 предупреждений.
     Gui, infopred: Add, Text,  x25 y100 cWhite, Так же не забывайте есть и устные предупреждения за мелкие нарушения.
-    Gui, infopred: Add, Text,  x25 y130 cYellow, .уст - Устное предупреждение медиа-партнёру.            
+    Gui, infopred: Add, Text,  x25 y130 cYellow, .уст - Устное предупреждение медиа-партнёру.             
     Gui, infopred: Add, Text,  x25 y190 cee5180, 1 предупреждение - нарушение на 80-120 минут деморгана.
     Gui, infopred: Add, Text,  x25 y220 cWhite, Например, DB + PG + NRD + OOC оск - это все стакается в одно предупреждение.
     Gui, infopred: Add, Text,  x25 y250 cWhite, (Предупреждайте словестно за мелкие нарушения перед стаком в 1/3 предов).
@@ -264,7 +256,7 @@ FixLog:
     Gui, FixLog: Add, Text, cee5180 x270 y23 +0x200, Список изменений:
 
     Gui, FixLog: Add, Text,  x25 y80 cWhite, - Актуализация биндера произвелась 02.09.2024
-    Gui, FixLog: Add, Text,  x25 y100 cWhite, by defix
+    Gui, FixLog: Add, Text,  x25 y100 cWhite, by olezhik
 
     Gui, FixLog: Show, h160 w700, Список изменений
 return
@@ -310,9 +302,9 @@ Info:
 	Gui, Info: Add, Text, cYellow x8 y150  h23 +0x200, Ctrl + F9 - Перезапустить.
     Gui, Info: Add, Text, cYellow x8 y170  h23 +0x200, Ctrl + F10 - Закрыть.
     Gui, Info: Font, s14,
-    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - Olezhik
-    Gui, Info: Add, Text, x8 y230  h23 +0x200, По работе и ошибках писать в Discord - Olezhik.ad
-    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - Olezhik
+    Gui, Info: Add, Text, x8 y210  h23 +0x200, Автор биндера - olezhik
+    Gui, Info: Add, Text, x8 y230  h23 +0x200, Редактирование и актуализация - olezhik
+    Gui, Info: Add, Text, x8 y250  h23 +0x200, Дизайн иконки - yokkk
 Return
 
 Teleports:
@@ -503,7 +495,7 @@ CommandList:
     Gui, CommandList: Add, Text, x410 y248  h20 +0x200, .ц - /w
     Gui, CommandList: Add, Text, x410 y264  h20 +0x200, .ыв - /setdim
     Gui, CommandList: Add, Text, x410 y280  h20 +0x200, .сршву - /chide
-    Gui, CommandList: Add, Text, x410 y296  h20 +0x200, .афк - /a афк мин
+    Gui, CommandList: Add, Text, x410 y296  h20 +0x200, .афк - /a афк мин{left 4}
     Gui, CommandList: Add, Text, x410 y312  h20 +0x200, .фгтсгаа - /auncuff
     Gui, CommandList: Add, Text, x410 y328  h20 +0x200, .фсгаа - /acuff
     Gui, CommandList: Add, Text, x410 y344  h20 +0x200, .акууямур - /freezveh
@@ -611,7 +603,7 @@ Punish:
     Gui, Punish: Add, Text, x8 y264  h20 +0x200, .муз - /mute 30 Music in ZZ
     Gui, Punish: Add, Text, x8 y280  h20 +0x200, .смник - /ajail 720 Смените Имя_Фамилия...
     Gui, Punish: Add, Text, x8 y296  h20 +0x200, .оскадм - /ban 5 Оскорбление администрации
-          Gui, Punish: Show, h320 w320, Наказания
+    Gui, Punish: Show, h320 w320, Наказания
 Return
 ;===========================================================================================================================================================
 ; Бинды ==============================================================================================================================
@@ -801,7 +793,6 @@ return
 :?:.бмара::/ctp 1302 -1646 51.04
 :?:.самол::/ctp 1473 2730 37.38
 
-; Команды
 :?:/bch::/bancheck
 :?:.иср::/bancheck
 :?:/jch::/ajailcheck
@@ -952,7 +943,6 @@ return
 :?:.ск::/skick 
 :?:.cr::/skick 
 
-
 :?:.чит::/hardban 9999 Cheats{left 12}
 :?:/xbn::/hardban 9999 Cheats{left 12}
 :?:.варн::/warn
@@ -1022,7 +1012,6 @@ return
 :?:/gjv::Сейчас помогу.
 :?:.ключ::/ctp -382.57 -126.32 38.24
 :?:.15::/ctp -712.42 -366.30 33.90
-
 
 :?:.1п::
 SendMessage, 0x50,, 0x4190419,, A

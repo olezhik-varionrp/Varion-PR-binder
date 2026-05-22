@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
+A_IconHidden := 1  ; Полностью скрываем стандартную зеленую иконку процесса в v2
 
 ; Создаем папку для картинок, если её нет
 if !DirExist(A_ScriptDir "\img")
@@ -30,10 +31,6 @@ DownloadImg("spisupdate.png")
 DownloadImg("saveglobal.png")
 DownloadImg("bindinfo.png")
 DownloadImg("auto.png")
-
-; Установка иконки в трей
-if FileExist(A_ScriptDir "\img\icon.png")
-    TraySetIcon(A_ScriptDir "\img\icon.png")
 
 titlcolor := "df005c"
 
@@ -87,7 +84,7 @@ cb5.Value := Radio5
 cb6 := MainGui.Add("CheckBox", "x304 y180 w120 h23", "/chide")
 cb6.Value := Radio6
 
-; Памятка внизу GUI
+; Нижний текст-памятка
 MainGui.Add("GroupBox", "x3 y385 w240 h130 cA52A2A")
 MainGui.Add("GroupBox", "x241 y385 w226 h130 cA52A2A")
 MainGui.Add("Text", "x10 y395 h20 +0x200", ".ку - Приветствие на 'ты'")
@@ -164,7 +161,7 @@ InfoGui() {
     g.SetFont("s14")
     g.Add("Text", "x8 y210 h23 +0x200", "Автор биндера - olezhik")
     g.Add("Text", "x8 y230 h23 +0x200", "Редактирование и актуализация - olezhik")
-    g.Add("Text", "x8 y250 h23 +0x200", "Для связи в DS - olezhik.ad")
+    g.Add("Text", "x8 y250 h23 +0x200", "Дизайн иконки - yokkk")
     g.Show("h280 w540")
 }
 
@@ -415,10 +412,6 @@ PunishGui() {
     g.Show("h320 w320")
 }
 
-CheatsheetGui() {
-    ; Метод памятки
-}
-
 ; --- ГОРЯЧИЕ СТРОКИ И ОТИГРЫШИ ---
 ::.ку::Привет, сегодня я слежу за тобой. Хорошего стрима
 ::.привет::Приветствую, на сегодня я ваш ассистент, по любым игровым вопросам - обращайтесь ко мне.
@@ -463,242 +456,3 @@ CheatsheetGui() {
 :X:/ecn:: {
     SendInput("/asms " qdin_edit.Value " Не нарушай, иначе ты получишь предупреждение.")
 }
-
-; Телепорты короткие команды (в v2 пишется как обычные горячие строки)
-::.лспд::/ctp 429 -980 30.50
-::.бол::/ctp 287.70 -578.35 50
-::.шд::/ctp -434.87 6024.54 31.50
-::.фз::/ctp -2336 3257 32.50
-::.мэр::/ctp -534.70 -222.07 37.60
-::.визл::/ctp -593 -929 24
-::.фиб::/ctp 2527 -377 93
-::.бал::/ctp -70.06 -1824.64 26.94
-::.ваг::/ctp 967 -1817 31
-::.фэм::/ctp -204.29 -1513.69 31.60
-::.бладс::/ctp 496 -1330 29.40
-::.мара::/ctp 983.018 -2496.230 28.769
-::.лкн::/ctp 1385 1154 114.40
-::.рм::/ctp -1526 858 181
-::.як::/ctp -1556.36 113.07 57
-::.мекс::/ctp 381.03 23.12 91.40
-::.ам::/ctp -1895.23 2027.19 141
-::.лост::/ctp 969.84 -128.40 74.40
-::.аод::/ctp 1995.99 3062.44 47.06
-::.ириш::/ctp -3022 105 11.30
-::.клаб::/ctp 1588.65 6445.38 25
-::.рич::/ctp -1302.49 294.52 64.50
-::.манор::/ctp -58.20 343.73 111.80
-::.конт::/ctp -1865.51 -355.96 57
-::.хум::/ctp 3569.54 3789.48 30
-::.мейз::/ctp -75 -818 326
-::.каз::/ctp 1110.117 217.0512 -49.56448
-::.аш::/ctp -620 -2264 6
-::.гг::/ctp -257 -2023 30
-::.бургер::/ctp -1171.31 -890.20 13.90
-::.багама::/ctp -1391.30 -585.35 30
-::.кайо::/ctp 4488.58 -4493.52 4
-::.авиа::/ctp 3035.21 -4688.55 15
-::.мол::/ctp 61.67 -1751.80 47
-::.трас::/ctp 7400 3946 1124
-::.аук::/ctp -833 -699.50 27
-::.бокс::/ctp 8.56 -1658.55 28.71
-::.бар::/ctp -305.09 6259.59 30.92
-::.бк::/ctp 500.44 109.79 96.49
-::.ванила::/ctp 131.33 -1302.93 29.23
-::.починка::/ctp -1430.45 -450.5 35.91
-::.лск4::/ctp 1175.47 2671.33 37.85
-::.порт::/ctp 417 -2501 13.46
-::.стр::/ctp 1304 1453 98.87
-::.лес::/ctp -321 6093 31.14
-::.бмара::/ctp 1302 -1646 51.04
-::.самол::/ctp 1473 2730 37.38
-
-; Транслит команд из твоего списка изменений
-::/bch::/bancheck
-::.иср::/bancheck
-::/jch::/ajailcheck
-::.оср::/ajailcheck
-::.ифтсрусл::/bancheck
-::.фофшдсрусл::/ajailcheck
-::/tf::/tempfamily
-::.еа::/tempfamily
-::/sm::/setmaterials
-::.ыь::/setmaterials
-::/tn::/tempname
-::.ет::/tempname
-::.яяв::/zzdebug
-::/zzd::/zzdebug
-::/amph::/addamphitheater
-::.фьзр::/addamphitheater
-::/ramph::/removeamphitheater
-::.кфьзр::/removeamphitheater
-::/gzone::/togglegreenzone
-::.пящту::/togglegreenzone
-::/mcheck::/mutecheck
-::.ьсрусл::/mutecheck
-::.ьгеусрусл::/mutecheck
-::.гтофшд::/unjail
-::.цфкт::/warn
-::/ld::/lastdriver
-::.дв::/lastdriver
-::/af::/ainfect
-::.фа::/ainfect
-::/sk::/skick
-::.ыл::/skick
-::/k::/kick
-::.л::/kick
-::/ai::/auninvite
-::.фш::/auninvite
-::.аи::/fb
-::/aif::/ainfect
-::.фша::/ainfect
-::.с::/c
-::.си::/cb
-::.гтьгеу::/unmute
-::.пшв::/gid
-::.фвьшты::/admins
-::.фштаусе::/ainfect
-::.умутещт::/eventon
-::.умутещаа::/eventoff
-::.пц::/gw
-::.мур::/veh
-::.ашчсфк::/fixcar
-::.уьздуфвук::/templeader
-::/tl::/templeader
-::.ед::/templeader
-::.ылшсл::/skick
-::.кузфшк::/repair
-::.фгтшмшеу::/auninvite
-::.учсфк::/excar
-::.агуд::/fuel
-::.згддекгтл::/pulltrunk
-::.акууя::/freez
-::.езсфк::/tpcar
-::.акууяф::/freezveh
-::.дфыевкшмук::/lastdriver
-::.вудшеуь::/delitem
-::/gc::/getcar
-::.пс::/getcar
-::.фв::/admins
-::/ad::/admins
-::.з::/players
-::/p::/players
-::.здфнукы::/players
-::.рес::/rescue
-::/htc::/rescue
-::.ез::/tp
-::.ызус::/spec
-::.ызусщаа::/specoff
-::.фыьы::/asms
-::.ф::/a
-::/sp::/spec
-::.ыз::/spec
-::/so::/specoff
-::.ыщ::/specoff
-::/kill::/hp 0{left 2}
-::.лшдд::/hp 0{left 2}
-::.штсфк::/incar
-::.пр::/gh
-::.штм::/inv
-::.шв::/id
-::.рз::/hp
-::.од::/ajail
-::.фофшд::/ajail
-::.лшсл::/kick
-::.ылшсл::/skick
-::.кузфшк::/repair
-::.вд::/dl
-::.уыз::/esp
-::.уыз2::/esp2
-::.уыз3::/esp3
-::.мурыефе::/vehstat
-::.пуесфк::/getcar
-::.ифт::/ban
-::.вудмур::/delveh
-::.ьез::/mtp
-::.мур::/veh
-::.фмур::/aveh
-::.рфквифт::/hardban
-::.ьгеу::/mute
-::.пшв::/gid
-::.ср::/chide
-::/ch::/chide
-::.куысгу::/rescue
-::.ыуевшь::/setdim
-::/sd::/setdim
-::.и::/b
-::.ц::/w
-::.ыв::/setdim
-::.сршву::/chide
-::.афк::/a афк мин{left 4}
-::.фгтсгаа::/auncuff
-::.фсгаа::/acuff
-::/scd::/setcardim
-::.ыуесфквшь::/setcardim
-::.ысв::/setcardim
-::/rst::/resettempname
-::.кые::/resettempname
-::.куыуееуьзтфьу::/resettempname
-::.т::/netstat
-::/ns::/netstat
-::.вм::/delveh
-::/dv::/delveh
-::/hard::/hardban
-::.рфкв::/hardban
-::/as::/asms
-::.фы::/asms
-::.пез::/gtp
-::.пь::/gm
-::.тс::/noclip
-::/nc::/noclip
-::/acf::/acuff
-::.фса::/acuff
-::/auf::/auncuff
-::.фга::/auncuff
-::.а::/f
-::.ылшт::/skin
-::.езр::/tph
-::.фмур::/aveh
-::.фдщсл::/alock
-::.ск::/skick 
-::.cr::/skick 
-
-::.чит::/hardban 9999 Cheats{left 12}
-::/xbn::/hardban 9999 Cheats{left 12}
-::.варн::/warn
-::/dfhy::/warn
-::.мут::/mute
-::/ven::/mute
-::.дем::/ajail
-::/ltv::/ajail
-::.бан::/ban
-::/,fy::/ban
-::.хард::/hardban
-::/[fhl::/hardban
-::.гб::/gunban
-::/u,::/gunban
-::.пгтифт::/gunban
-::.запретка::/ban 3.5 ОПС{left 8}
-::/pfghtnrf::/ban 3.5 ОПС{left 8}
-::.звук::/mute 120 Мешающие звуки{left 19}
-::/pder::/mute 120 Мешающие звуки{left 19}
-::.помеха::/ajail 10 3.6.2 ОПС{left 13}
-::/gjvt[f::/ajail 10 3.6.2 ОПС{left 13}
-::.кик::/kick 3.6.2 ОПС{left 10}
-::/rbr::/kick 3.6.2 ОПС{left 10}
-
-::.нрд::/ajail 15 nonRP Drive{Left 15}
-::.нрп::/ajail 15 nonRP Поведение{Left 19}
-::.дб::/ajail 30 DB{Left 6}
-::.дм::/gunban 5 DM{Left 5}
-::.дмд::/ajail 120 DM{Left 7}
-::.пг::/ajail 35 PG{Left 6}
-::.муз::/mute 30 Music in ZZ{Left 15}
-::.смник::/ajail 720 Смените Имя_Фамилия согласно правилам сервера{Left 50}
-::.оскадм::/ban 5 Оскорбление администрации{left 28}
-
-::.верт::/veh sparrowc 0 0
-::/dthn::/veh sparrowc 0 0
-::.маш::/veh bdivo 0 0
-::/vfi::/veh bdivo 0 0
-::.скин::/skin {space}
